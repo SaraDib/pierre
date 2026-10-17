@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import StoneTexture from '../components/StoneTexture';
 import { getAcceuilContent, formatMediaUrl } from '../api/acceuil';
+import { getSavoirFaireContent } from '../api/savoirFaire';
+import { getMateriauxContent, toStoneMaterial } from '../api/materiaux';
+import { getRealisationsContent } from '../api/realisations';
+import { getMethodeContent } from '../api/methode';
+import { getFaqContent } from '../api/faq';
 import {
-  MATERIALS_DATA,
-  ALL_MATERIALS_DATA,
-  EXPERTISE_LAYERS,
-  REALISATIONS_DATA,
-  FAQ_DATA,
   MARQUEE_WORDS,
   WHATSAPP_PHONE
 } from '../data/content';
@@ -41,11 +41,154 @@ export default function HomePage() {
       }
     });
   }, []);
+
+  // Contenu Savoir-faire (depuis les tables savoir_faire_*)
+  const [savoirFaire, setSavoirFaire] = useState(null);
+  const [savoirFaireStatus, setSavoirFaireStatus] = useState('loading'); // 'loading' | 'ready' | 'error'
+
+  useEffect(() => {
+    let cancelled = false;
+    getSavoirFaireContent()
+      .then((data) => {
+        if (cancelled) return;
+        setSavoirFaire(data);
+        setSavoirFaireStatus('ready');
+      })
+      .catch(() => {
+        if (!cancelled) setSavoirFaireStatus('error');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Contenu Matériaux (depuis les tables materiaux_*)
+  const [materiaux, setMateriaux] = useState(null);
+  const [materiauxStatus, setMateriauxStatus] = useState('loading'); // 'loading' | 'ready' | 'error'
+
+  useEffect(() => {
+    let cancelled = false;
+    getMateriauxContent()
+      .then((data) => {
+        if (cancelled) return;
+        setMateriaux(data);
+        setMateriauxStatus('ready');
+      })
+      .catch(() => {
+        if (!cancelled) setMateriauxStatus('error');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Contenu Réalisations (depuis les tables realisations_*)
+  const [realisations, setRealisations] = useState(null);
+  const [realisationsStatus, setRealisationsStatus] = useState('loading'); // 'loading' | 'ready' | 'error'
+
+  useEffect(() => {
+    let cancelled = false;
+    getRealisationsContent({ featured: true })
+      .then((data) => {
+        if (cancelled) return;
+        setRealisations(data);
+        setRealisationsStatus('ready');
+      })
+      .catch(() => {
+        if (!cancelled) setRealisationsStatus('error');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Contenu Méthode (depuis la table methode_*)
+  const [methode, setMethode] = useState(null);
+  const [methodeStatus, setMethodeStatus] = useState('loading'); // 'loading' | 'ready' | 'error'
+
+  useEffect(() => {
+    let cancelled = false;
+    getMethodeContent()
+      .then((data) => {
+        if (cancelled) return;
+        setMethode(data);
+        setMethodeStatus('ready');
+      })
+      .catch(() => {
+        if (!cancelled) setMethodeStatus('error');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Contenu FAQ (depuis les tables faq_*)
+  const [faq, setFaq] = useState(null);
+  const [faqStatus, setFaqStatus] = useState('loading'); // 'loading' | 'ready' | 'error'
+
+  useEffect(() => {
+    let cancelled = false;
+    getFaqContent()
+      .then((data) => {
+        if (cancelled) return;
+        setFaq(data);
+        setFaqStatus('ready');
+      })
+      .catch(() => {
+        if (!cancelled) setFaqStatus('error');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Textures de toutes les pierres (y compris celles masquées du sélecteur), indexées par slug.
+  // Utilisées par la carte d'accueil et les couches Savoir-faire.
+  const stoneBySlug = useMemo(() => {
+    const map = {};
+    (materiaux?.textures || []).forEach((t) => {
+      map[t.slug] = toStoneMaterial(t);
+    });
+    return map;
+  }, [materiaux]);
+
   // Matériaux interactifs
   const [currentMatIndex, setCurrentMatIndex] = useState(0);
   const [currentFinIndex, setCurrentFinIndex] = useState(0);
   const [slabFading, setSlabFading] = useState(false);
   const [slabRevealed, setSlabRevealed] = useState(false);
+
+  // Révéler les éléments .rv rendus après le chargement des contenus Savoir-faire / Matériaux / Réalisations / Méthode / FAQ
+  useEffect(() => {
+    if (
+      savoirFaireStatus !== 'ready' &&
+      materiauxStatus !== 'ready' &&
+      realisationsStatus !== 'ready' &&
+      methodeStatus !== 'ready' &&
+      faqStatus !== 'ready'
+    )
+      return undefined;
+    const els = document.querySelectorAll(
+      '#savoir-faire .rv:not(.in), #materiaux .rv:not(.in), #realisations .rv:not(.in), #methode .rv:not(.in), #faq .rv:not(.in)'
+    );
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in');
+            entry.target.setAttribute('data-in', 'true');
+            if (entry.target.id === 'slab') {
+              setSlabRevealed(true);
+            }
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12 }
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [savoirFaireStatus, materiauxStatus, realisationsStatus, methodeStatus, faqStatus]);
 
   // FAQ accordéon
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
@@ -201,8 +344,11 @@ export default function HomePage() {
     window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  const currentMat = MATERIALS_DATA[currentMatIndex] || MATERIALS_DATA[0];
-  const activeFinish = currentMat?.f?.[currentFinIndex] || currentMat?.f?.[0] || '';
+  const matItems = materiaux?.items ?? [];
+  const safeMatIndex = currentMatIndex < matItems.length ? currentMatIndex : 0;
+  const currentMat = matItems[safeMatIndex];
+  const currentStone = currentMat ? stoneBySlug[currentMat.slug] : null;
+  const activeFinish = currentMat?.finishes?.[currentFinIndex] || currentMat?.finishes?.[0] || '';
   const isPoli = activeFinish === 'Poli';
 
   return (
@@ -291,11 +437,13 @@ export default function HomePage() {
                     style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }}
                   />
                 ) : (
-                  <StoneTexture
-                    material={MATERIALS_DATA.find((m) => m.k === (homeContent.arch_material || 'travertin')) || MATERIALS_DATA[2]}
-                    className="tex"
-                    style={{ position: 'absolute', inset: 0 }}
-                  />
+                  stoneBySlug[homeContent.arch_material || 'travertin'] && (
+                    <StoneTexture
+                      material={stoneBySlug[homeContent.arch_material || 'travertin']}
+                      className="tex"
+                      style={{ position: 'absolute', inset: 0 }}
+                    />
+                  )
                 )}
                 <div className="sheen" />
               </div>
@@ -326,115 +474,179 @@ export default function HomePage() {
         {/* ===== SAVOIR-FAIRE ===== */}
         <section className="sec" id="savoir-faire" data-label="Savoir-faire">
           <div className="wrap">
-            <div className="sec-head">
-              <div>
-                <div className="eyebrow rv">Notre expertise</div>
-                <h2 className="rv d1">
-                  Cinq métiers, <em>une seule exigence.</em>
-                </h2>
-              </div>
-              <p className="rv d2">
-                De la sélection du bloc à la dernière jointure, nous maîtrisons chaque couche du projet.
-              </p>
-            </div>
+            {savoirFaireStatus === 'loading' && (
+              <p className="lead" role="status">Chargement…</p>
+            )}
 
-            <div className="strata">
-              {EXPERTISE_LAYERS.map((item) => {
-                const mat = ALL_MATERIALS_DATA.find((m) => m.k === item.matKey);
-                return (
-                  <div key={item.n} className="layer rv">
-                    <div className="bg">
-                      {mat && (
-                        <StoneTexture
-                          material={mat}
-                          className="tex"
-                          style={{ position: 'absolute', inset: 0 }}
-                        />
-                      )}
-                    </div>
-                    <span className="n">{item.n}</span>
-                    <h3>{item.title}</h3>
-                    <p>{item.desc}</p>
-                    <span className="go">→</span>
+            {savoirFaireStatus === 'error' && (
+              <p className="lead" role="alert">
+                Impossible de charger cette section pour le moment. Veuillez réessayer plus tard.
+              </p>
+            )}
+
+            {savoirFaireStatus === 'ready' && savoirFaire && (
+              <>
+                <div className="sec-head">
+                  <div>
+                    {savoirFaire.section.eyebrow && (
+                      <div className="eyebrow rv">{savoirFaire.section.eyebrow}</div>
+                    )}
+                    <h2 className="rv d1">
+                      {savoirFaire.section.title}{' '}
+                      {savoirFaire.section.title_em && <em>{savoirFaire.section.title_em}</em>}
+                    </h2>
                   </div>
-                );
-              })}
-            </div>
+                  {savoirFaire.section.description && (
+                    <p className="rv d2">{savoirFaire.section.description}</p>
+                  )}
+                </div>
+
+                {savoirFaire.items.length === 0 ? (
+                  <p className="lead">Aucune expertise à afficher pour le moment.</p>
+                ) : (
+                  <div className="strata">
+                    {savoirFaire.items.map((item, idx) => {
+                      const mat = stoneBySlug[item.mat_key];
+                      return (
+                        <div key={item.id} className="layer rv">
+                          <div className="bg">
+                            {item.image ? (
+                              <img
+                                src={formatMediaUrl(item.image)}
+                                alt={item.title}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }}
+                              />
+                            ) : (
+                              mat && (
+                                <StoneTexture
+                                  material={mat}
+                                  className="tex"
+                                  style={{ position: 'absolute', inset: 0 }}
+                                />
+                              )
+                            )}
+                          </div>
+                          <span className="n">{String(idx + 1).padStart(2, '0')}</span>
+                          <h3>{item.title}</h3>
+                          <p>{item.description}</p>
+                          <span className="go">→</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </section>
 
         {/* ===== MATÉRIAUX ===== */}
         <section className="sec mat" id="materiaux" data-label="Matériaux">
           <div className="wrap">
-            <div className="sec-head">
-              <div>
-                <div className="eyebrow rv">Collections</div>
-                <h2 className="rv d1">
-                  Choisissez votre <em>matière.</em>
-                </h2>
-              </div>
-              <p className="rv d2">
-                Touchez, comparez, imaginez. Sélectionnez une pierre puis une finition pour la visualiser.
+            {materiauxStatus === 'loading' && (
+              <p className="lead" role="status">Chargement…</p>
+            )}
+
+            {materiauxStatus === 'error' && (
+              <p className="lead" role="alert">
+                Impossible de charger cette section pour le moment. Veuillez réessayer plus tard.
               </p>
-            </div>
+            )}
 
-            <div className="mat-grid">
-              <div className="rv">
-                <div className="tabs" id="tabs">
-                  {MATERIALS_DATA.map((mat, idx) => (
-                    <button
-                      key={mat.k}
-                      className={`tab ${idx === currentMatIndex ? 'on' : ''}`}
-                      onClick={() => handleSelectMaterial(idx)}
-                    >
-                      {mat.t}
-                      <small>{mat.s}</small>
-                    </button>
-                  ))}
+            {materiauxStatus === 'ready' && materiaux && (
+              <>
+                <div className="sec-head">
+                  <div>
+                    {materiaux.section?.eyebrow && (
+                      <div className="eyebrow rv">{materiaux.section.eyebrow}</div>
+                    )}
+                    <h2 className="rv d1">
+                      {materiaux.section?.title}{' '}
+                      {materiaux.section?.title_em && <em>{materiaux.section.title_em}</em>}
+                    </h2>
+                  </div>
+                  {materiaux.section?.description && (
+                    <p className="rv d2">{materiaux.section.description}</p>
+                  )}
                 </div>
 
-                <p className="info" id="info">{currentMat.d}</p>
+                {matItems.length === 0 ? (
+                  <p className="lead">Aucun matériau disponible pour le moment.</p>
+                ) : (
+                  <div className="mat-grid">
+                    <div className="rv">
+                      <div className="tabs" id="tabs">
+                        {matItems.map((mat, idx) => (
+                          <button
+                            key={mat.id || mat.slug}
+                            className={`tab ${idx === safeMatIndex ? 'on' : ''}`}
+                            onClick={() => handleSelectMaterial(idx)}
+                          >
+                            {mat.name}
+                            {mat.category_name && <small>{mat.category_name}</small>}
+                          </button>
+                        ))}
+                      </div>
 
-                <div className="chips" id="chips">
-                  {currentMat.f.map((fin, fIdx) => (
-                    <button
-                      key={fin}
-                      className={`chip ${fIdx === currentFinIndex ? 'on' : ''}`}
-                      onClick={() => handleSelectFinish(fIdx)}
-                    >
-                      {fin}
-                    </button>
-                  ))}
-                </div>
-              </div>
+                      {currentMat && (
+                        <p className="info" id="info">{currentMat.description}</p>
+                      )}
 
-              <div
-                className={`slab rv d1 ${slabRevealed ? 'in' : ''} ${isPoli ? 'poli' : ''}`}
-                id="slab"
-                data-in={slabRevealed ? 'true' : undefined}
-              >
-                <div
-                  id="slabTex"
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    opacity: slabFading ? 0 : 1,
-                    transition: 'opacity .22s ease'
-                  }}
-                >
-                  <StoneTexture
-                    key={`${currentMat.k}_${currentFinIndex}`}
-                    material={currentMat}
-                    seedOffset={currentFinIndex * 2}
-                  />
-                </div>
-                <div className="gloss" />
-                <div className="cap">
-                  <b id="slabName">{currentMat.t}</b>
-                  <small id="slabFin">Finition · {activeFinish}</small>
-                </div>
-              </div>
-            </div>
+                      {currentMat?.finishes && currentMat.finishes.length > 0 && (
+                        <div className="chips" id="chips">
+                          {currentMat.finishes.map((fin, fIdx) => (
+                            <button
+                              key={fin}
+                              className={`chip ${fIdx === currentFinIndex ? 'on' : ''}`}
+                              onClick={() => handleSelectFinish(fIdx)}
+                            >
+                              {fin}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {currentMat && (
+                      <div
+                        className={`slab rv d1 ${slabRevealed ? 'in' : ''} ${isPoli ? 'poli' : ''}`}
+                        id="slab"
+                        data-in={slabRevealed ? 'true' : undefined}
+                      >
+                        <div
+                          id="slabTex"
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            opacity: slabFading ? 0 : 1,
+                            transition: 'opacity .22s ease'
+                          }}
+                        >
+                          {currentMat.image ? (
+                            <img
+                              src={formatMediaUrl(currentMat.image)}
+                              alt={currentMat.name}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }}
+                            />
+                          ) : currentStone ? (
+                            <StoneTexture
+                              key={`${currentMat.slug}_${currentFinIndex}`}
+                              material={currentStone}
+                              seedOffset={currentFinIndex * 2}
+                            />
+                          ) : null}
+                        </div>
+                        <div className="gloss" />
+                        <div className="cap">
+                          <b id="slabName">{currentMat.name}</b>
+                          {activeFinish && <small id="slabFin">Finition · {activeFinish}</small>}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </section>
 
@@ -443,81 +655,52 @@ export default function HomePage() {
           <div className="wrap">
             <div className="sec-head">
               <div>
-                <div className="eyebrow rv">Réalisations</div>
+                <div className="eyebrow rv">
+                  {realisations?.section?.bento_eyebrow || 'Réalisations'}
+                </div>
                 <h2 className="rv d1">
-                  Des projets qui <em>portent notre signature.</em>
+                  {realisations?.section?.bento_title || 'Des projets qui'}{' '}
+                  <em>{realisations?.section?.bento_title_em || 'portent notre signature.'}</em>
                 </h2>
               </div>
               <p className="rv d2">
-                Découvrez une sélection de nos chantiers d'exception réalisés sur mesure partout au Maroc.
+                {realisations?.section?.bento_description ||
+                  "Découvrez une sélection de nos chantiers d'exception réalisés sur mesure partout au Maroc."}
               </p>
             </div>
 
             <div className="bento">
-              <article className="tile t1 rv">
-                <img
-                  className="tex"
-                  src="/images/realisation-facade-taza.jpg"
-                  alt="Villa en pierre de Taza éclatée au Maroc"
-                  loading="lazy"
-                />
-                <div className="t">
-                  <small>Façade · Pierre de Taza</small>
-                  <b>Villa en pierre de Taza éclatée</b>
-                </div>
-              </article>
+              {((realisations?.items && realisations.items.length > 0)
+                ? realisations.items.slice(0, 5)
+                : [
+                    { id: 1, grid_class: 't1', cover_image: '/images/realisation-facade-taza.jpg', subtitle: 'Façade · Pierre de Taza', short_title: 'Villa en pierre de Taza éclatée' },
+                    { id: 2, grid_class: 't2', cover_image: '/images/realisation-escalier-marbre.jpg', subtitle: 'Escalier · Marbre noble', short_title: 'Marbre veiné, nez de marche poli' },
+                    { id: 3, grid_class: 't3', cover_image: '/images/realisation-cuisine-granit.jpg', subtitle: 'Cuisine · Granit absolu', short_title: 'Plan de travail en granit noir' },
+                    { id: 4, grid_class: 't4', cover_image: '/images/realisation-salle-de-bain.jpg', subtitle: 'Salle de bain · Ardoise', short_title: 'Ardoise & vasque monolithique sculptée' },
+                    { id: 5, grid_class: 't5', cover_image: '/images/realisation-piscine-travertin.jpg', subtitle: 'Extérieur · Travertin', short_title: 'Terrasse et plage de piscine antidérapantes' }
+                  ]
+              ).map((proj, idx) => {
+                const gClass = proj.grid_class || proj.gridClass || `t${idx + 1}`;
+                const delayClass = idx === 1 || idx === 4 ? 'd1' : idx === 2 ? 'd2' : '';
+                const cover = proj.cover_image || proj.img;
+                const subtitle = proj.subtitle || `${proj.category_name || 'Projet'} · ${proj.stone || ''}`;
+                const shortTitle = proj.short_title || proj.shortTitle || proj.title;
 
-              <article className="tile t2 rv d1">
-                <img
-                  className="tex"
-                  src="/images/realisation-escalier-marbre.jpg"
-                  alt="Escalier suspendu en marbre Calacatta veiné"
-                  loading="lazy"
-                />
-                <div className="t">
-                  <small>Escalier · Marbre noble</small>
-                  <b>Marbre veiné, nez de marche poli</b>
-                </div>
-              </article>
-
-              <article className="tile t3 rv d2">
-                <img
-                  className="tex"
-                  src="/images/realisation-cuisine-granit.jpg"
-                  alt="Îlot de cuisine en granit noir absolu poli"
-                  loading="lazy"
-                />
-                <div className="t">
-                  <small>Cuisine · Granit absolu</small>
-                  <b>Plan de travail en granit noir</b>
-                </div>
-              </article>
-
-              <article className="tile t4 rv">
-                <img
-                  className="tex"
-                  src="/images/realisation-salle-de-bain.jpg"
-                  alt="Vasque sculptée et murs en ardoise naturelle"
-                  loading="lazy"
-                />
-                <div className="t">
-                  <small>Salle de bain · Ardoise</small>
-                  <b>Ardoise & vasque monolithique sculptée</b>
-                </div>
-              </article>
-
-              <article className="tile t5 rv d1">
-                <img
-                  className="tex"
-                  src="/images/realisation-piscine-travertin.jpg"
-                  alt="Plage de piscine et terrasse en travertin romain"
-                  loading="lazy"
-                />
-                <div className="t">
-                  <small>Extérieur · Travertin</small>
-                  <b>Terrasse et plage de piscine antidérapantes</b>
-                </div>
-              </article>
+                return (
+                  <article key={proj.id} className={`tile ${gClass} rv ${delayClass}`}>
+                    <img
+                      className="tex"
+                      src={cover}
+                      alt={proj.title || shortTitle}
+                      loading="lazy"
+                    />
+                    <div className="t">
+                      <small>{subtitle}</small>
+                      <b>{shortTitle}</b>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
 
             <div style={{ textAlign: 'center', marginTop: '54px' }} className="rv d2">
@@ -533,37 +716,39 @@ export default function HomePage() {
           <div className="wrap">
             <div className="sec-head">
               <div>
-                <div className="eyebrow rv">Notre méthode</div>
+                <div className="eyebrow rv">{methode?.section?.eyebrow || 'Notre méthode'}</div>
                 <h2 className="rv d1">
-                  Du bloc brut <em>à l'ouvrage fini.</em>
+                  {methode?.section?.title || 'Du bloc brut'}{' '}
+                  <em>{methode?.section?.title_em || "à l'ouvrage fini."}</em>
                 </h2>
               </div>
+              {methode?.section?.description && (
+                <p className="rv d2" style={{ maxWidth: '540px' }}>
+                  {methode.section.description}
+                </p>
+              )}
             </div>
 
             <div className="steps">
-              <div className="step rv">
-                <div className="dot">1</div>
-                <h3>Visite & métrage</h3>
-                <p>Nous étudions votre projet sur place et relevons chaque dimension.</p>
-              </div>
-
-              <div className="step rv d1">
-                <div className="dot">2</div>
-                <h3>Devis & choix</h3>
-                <p>Devis détaillé et sélection des pierres et finitions avec vous.</p>
-              </div>
-
-              <div className="step rv d2">
-                <div className="dot">3</div>
-                <h3>Taille en atelier</h3>
-                <p>Découpe, façonnage et contrôle qualité de chaque pièce.</p>
-              </div>
-
-              <div className="step rv d3">
-                <div className="dot">4</div>
-                <h3>Livraison & pose</h3>
-                <p>Transport sécurisé et pose soignée, joints et finitions inclus.</p>
-              </div>
+              {((methode?.items && methode.items.length > 0)
+                ? methode.items
+                : [
+                    { id: 1, position: 1, title: 'Visite & métrage', short_description: 'Nous étudions votre projet sur place et relevons chaque dimension.' },
+                    { id: 2, position: 2, title: 'Devis & choix', short_description: 'Devis détaillé et sélection des pierres et finitions avec vous.' },
+                    { id: 3, position: 3, title: 'Taille en atelier', short_description: 'Découpe, façonnage et contrôle qualité de chaque pièce.' },
+                    { id: 4, position: 4, title: 'Livraison & pose', short_description: 'Transport sécurisé et pose soignée, joints et finitions inclus.' }
+                  ]
+              ).map((step, idx) => {
+                const delayClass = idx === 1 ? 'd1' : idx === 2 ? 'd2' : idx >= 3 ? 'd3' : '';
+                const dotNumber = step.step_number ? parseInt(step.step_number, 10) || idx + 1 : idx + 1;
+                return (
+                  <div key={step.id} className={`step rv ${delayClass}`}>
+                    <div className="dot">{dotNumber}</div>
+                    <h3>{step.title}</h3>
+                    <p>{step.short_description || step.desc || step.description}</p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -572,42 +757,55 @@ export default function HomePage() {
         <section className="sec" id="faq" data-label="FAQ">
           <div className="wrap faq-grid">
             <div className="sticky">
-              <div className="eyebrow rv">Questions fréquentes</div>
+              <div className="eyebrow rv">{faq?.section?.eyebrow || 'Questions fréquentes'}</div>
               <h2 className="rv d1" style={{ marginTop: '20px' }}>
-                Tout ce que vous <em>devez savoir.</em>
+                {faq?.section?.title || 'Tout ce que vous'}{' '}
+                <em>{faq?.section?.title_em || 'devez savoir.'}</em>
               </h2>
               <p className="rv d2" style={{ marginTop: '20px', color: 'var(--muted)' }}>
-                Vous hésitez sur le choix de votre pierre ? Contactez directement nos tailleurs de pierre pour un conseil sur mesure.
+                {faq?.section?.description !== undefined && faq?.section?.description !== null && faq?.section?.description !== ''
+                  ? faq.section.description
+                  : 'Vous hésitez sur le choix de votre pierre ? Contactez directement nos tailleurs de pierre pour un conseil sur mesure.'}
               </p>
               <div style={{ marginTop: '30px' }} className="rv d3">
                 <a
-                  href={`https://wa.me/${WHATSAPP_PHONE}`}
+                  href={faq?.section?.cta_link || `https://wa.me/${WHATSAPP_PHONE}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-ochre"
                 >
-                  Poser une question <span className="ar">→</span>
+                  {faq?.section?.cta_text || 'Poser une question'} <span className="ar">→</span>
                 </a>
               </div>
             </div>
 
             <div className="qa rv d1">
-              {FAQ_DATA.map((item, idx) => (
-                <div key={idx} className={`item ${openFaqIndex === idx ? 'o' : ''}`}>
-                  <div className="q" onClick={() => toggleFaq(idx)}>
-                    <h3>{item.q}</h3>
-                    <span>+</span>
+              {(faq?.items && faq.items.length > 0) ? (
+                faq.items.map((item, idx) => (
+                  <div key={item.id || idx} className={`item ${openFaqIndex === idx ? 'o' : ''}`}>
+                    <div className="q" onClick={() => toggleFaq(idx)}>
+                      <h3>{item.question || item.q}</h3>
+                      <span>+</span>
+                    </div>
+                    <div
+                      className="a"
+                      style={{
+                        maxHeight: openFaqIndex === idx ? '360px' : '0'
+                      }}
+                    >
+                      <div style={{ whiteSpace: 'pre-line' }}>{item.answer || item.a}</div>
+                    </div>
                   </div>
-                  <div
-                    className="a"
-                    style={{
-                      maxHeight: openFaqIndex === idx ? '260px' : '0'
-                    }}
-                  >
-                    <div>{item.a}</div>
-                  </div>
+                ))
+              ) : faqStatus === 'loading' ? (
+                <div style={{ padding: '24px 0', color: 'var(--muted)', fontSize: '14px' }}>
+                  Chargement des questions fréquentes...
                 </div>
-              ))}
+              ) : (
+                <div style={{ padding: '24px 0', color: 'var(--muted)', fontSize: '14px' }}>
+                  Aucune question disponible pour le moment.
+                </div>
+              )}
             </div>
           </div>
         </section>

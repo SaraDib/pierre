@@ -19,7 +19,6 @@ import {
   Menu,
   X,
   FileText,
-  MapPin,
   ChevronRight,
   ArrowUpRight,
   Save,
@@ -41,37 +40,14 @@ import {
   resetAcceuilContent,
   formatMediaUrl
 } from '../api/acceuil';
-import StoneTexture from '../components/StoneTexture';
-import {
-  MATERIALS_DATA,
-  ALL_MATERIALS_DATA,
-  EXPERTISE_LAYERS,
-  REALISATIONS_DATA,
-  FAQ_DATA
-} from '../data/content';
-
-const METHOD_STEPS = [
-  {
-    step: '01',
-    title: 'Conseil & sélection des blocs',
-    desc: 'Choix minutieux des carrières et des blocs de marbre ou pierre naturelle selon votre cahier des charges esthétique et technique.'
-  },
-  {
-    step: '02',
-    title: 'Relevé laser & calepinage 3D',
-    desc: 'Prise de cotes millimétrique sur votre chantier avec scanner laser et élaboration des plans d\'appareillage sur mesure.'
-  },
-  {
-    step: '03',
-    title: 'Découpe numérique & finitions manuelles',
-    desc: 'Usinage 5 axes de haute précision dans notre atelier, complété par le travail de taille et de polissage traditionnel de nos maîtres artisans.'
-  },
-  {
-    step: '04',
-    title: 'Pose d\'excellence & traitement protecteur',
-    desc: 'Installation sur site avec joints invisibles, mise en place des ancrages et application d\'un traitement hydrofuge / oléofuge longue durée.'
-  }
-];
+import SavoirFaireAdmin from '../components/SavoirFaireAdmin';
+import MateriauxAdmin from '../components/MateriauxAdmin';
+import RealisationsAdmin from '../components/RealisationsAdmin';
+import MethodeAdmin from '../components/MethodeAdmin';
+import FaqAdmin from '../components/FaqAdmin';
+import { getMateriauxAdmin } from '../api/materiaux';
+import { getRealisationsAdmin } from '../api/realisations';
+import { getMethodeAdmin } from '../api/methode';
 
 export default function AdminDashboardPage() {
   const { user, token, logout } = useAuth();
@@ -82,6 +58,12 @@ export default function AdminDashboardPage() {
   const [apiStatus, setApiStatus] = useState('checking'); // 'checking' | 'connected' | 'error'
   const [apiUserData, setApiUserData] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [savoirFaireCount, setSavoirFaireCount] = useState(null);
+  const [materiauxCount, setMateriauxCount] = useState(null);
+  const [realisationsCount, setRealisationsCount] = useState(null);
+  const [methodeCount, setMethodeCount] = useState(null);
+  const [faqCount, setFaqCount] = useState(null);
+  const [materiauxOptions, setMateriauxOptions] = useState([]);
 
   // Formulaire d'édition Accueil (Table acceuil)
   const [acceuilForm, setAcceuilForm] = useState({
@@ -124,35 +106,35 @@ export default function AdminDashboardPage() {
       label: 'Savoir-faire',
       path: '/#savoir-faire',
       icon: Sparkles,
-      badge: '5 expertises'
+      badge: savoirFaireCount === null ? 'Expertises' : `${savoirFaireCount} expertises`
     },
     {
       id: 'materiaux',
       label: 'Matériaux',
       path: '/#materiaux',
       icon: Layers,
-      badge: `${ALL_MATERIALS_DATA.length} roches`
+      badge: materiauxCount === null ? 'Matériaux' : `${materiauxCount} roches`
     },
     {
       id: 'realisations',
       label: 'Réalisations',
       path: '/#realisations',
       icon: Boxes,
-      badge: `${REALISATIONS_DATA.length} projets`
+      badge: realisationsCount === null ? 'Réalisations' : `${realisationsCount} projets`
     },
     {
       id: 'methode',
       label: 'Méthode',
       path: '/#methode',
       icon: ListChecks,
-      badge: '4 étapes'
+      badge: methodeCount === null ? 'Méthode' : `${methodeCount} étapes`
     },
     {
       id: 'faq',
       label: 'FAQ',
       path: '/#faq',
       icon: HelpCircle,
-      badge: `${FAQ_DATA.length} questions`
+      badge: faqCount === null ? 'FAQ' : `${faqCount} questions`
     }
   ];
 
@@ -190,6 +172,37 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     checkBackendHealth();
     loadAcceuil();
+  }, [token]);
+
+  useEffect(() => {
+    getMateriauxAdmin(token)
+      .then((data) => {
+        if (data?.items) {
+          setMateriauxOptions(data.items);
+          setMateriauxCount(data.items.length);
+        }
+      })
+      .catch(() => {});
+  }, [token]);
+
+  useEffect(() => {
+    getRealisationsAdmin(token)
+      .then((data) => {
+        if (data?.items) {
+          setRealisationsCount(data.items.length);
+        }
+      })
+      .catch(() => {});
+  }, [token]);
+
+  useEffect(() => {
+    getMethodeAdmin(token)
+      .then((data) => {
+        if (data?.items) {
+          setMethodeCount(data.items.length);
+        }
+      })
+      .catch(() => {});
   }, [token]);
 
   const handleLogout = async () => {
@@ -1064,11 +1077,19 @@ export default function AdminDashboardPage() {
                           outline: 'none'
                         }}
                       >
-                        <option value="travertin">Travertin romain (Teinte miel/beige strié)</option>
-                        <option value="marbre">Marbre Calacatta (Blanc veiné noble)</option>
-                        <option value="granit">Granit noir absolu (Grain minéral sombre)</option>
-                        <option value="taza">Pierre de Taza (Calcaire doux doré)</option>
-                        <option value="ardoise">Ardoise naturelle (Anthracite clivé)</option>
+                        {materiauxOptions.length > 0 ? (
+                          materiauxOptions.map((m) => (
+                            <option key={m.slug} value={m.slug}>{m.name}</option>
+                          ))
+                        ) : (
+                          <>
+                            <option value="travertin">Travertin romain (Teinte miel/beige strié)</option>
+                            <option value="marbre">Marbre Calacatta (Blanc veiné noble)</option>
+                            <option value="granit">Granit noir absolu (Grain minéral sombre)</option>
+                            <option value="taza">Pierre de Taza (Calcaire doux doré)</option>
+                            <option value="ardoise">Ardoise naturelle (Anthracite clivé)</option>
+                          </>
+                        )}
                       </select>
                     </div>
 
@@ -1373,466 +1394,27 @@ export default function AdminDashboardPage() {
 
           {/* SECTION 2: SAVOIR-FAIRE */}
           {activeSection === 'savoir-faire' && (
-            <div>
-              <div style={{
-                marginBottom: '28px',
-                paddingBottom: '20px',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '12px'
-              }}>
-                <div>
-                  <h1 style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: '28px', fontWeight: 400, color: '#f7f3ea', margin: '0 0 6px' }}>
-                    Savoir-faire & Domaines d'Intervention
-                  </h1>
-                  <p style={{ fontSize: '13px', color: '#a0988c', margin: 0 }}>
-                    Les 5 spécialités d'excellence affichées sur la section <a href="/#savoir-faire" target="_blank" rel="noopener noreferrer" style={{ color: '#c5a059' }}>#savoir-faire</a>.
-                  </p>
-                </div>
-                <a
-                  href="/#savoir-faire"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '8px 14px',
-                    borderRadius: '8px',
-                    background: 'rgba(197, 160, 89, 0.12)',
-                    color: '#c5a059',
-                    fontSize: '12px',
-                    fontWeight: 600,
-                    textDecoration: 'none'
-                  }}
-                >
-                  Ouvrir #savoir-faire ↗
-                </a>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
-                {EXPERTISE_LAYERS.map((item) => (
-                  <div
-                    key={item.n}
-                    style={{
-                      background: 'rgba(26, 24, 22, 0.8)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      borderRadius: '12px',
-                      padding: '24px',
-                      transition: 'border-color 0.2s ease'
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
-                      <span style={{
-                        fontFamily: "'Fraunces', Georgia, serif",
-                        fontSize: '22px',
-                        color: '#c5a059',
-                        fontWeight: 300
-                      }}>
-                        {item.n}
-                      </span>
-                      <span style={{
-                        fontSize: '11px',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.1em',
-                        padding: '3px 8px',
-                        borderRadius: '6px',
-                        background: 'rgba(197, 160, 89, 0.1)',
-                        color: '#c5a059'
-                      }}>
-                        {item.matKey}
-                      </span>
-                    </div>
-                    <h3 style={{ fontSize: '17px', fontWeight: 600, color: '#f7f3ea', margin: '0 0 10px' }}>
-                      {item.title}
-                    </h3>
-                    <p style={{ fontSize: '13px', color: '#a0988c', lineHeight: 1.6, margin: 0 }}>
-                      {item.desc}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <SavoirFaireAdmin token={token} onCountChange={setSavoirFaireCount} />
           )}
 
           {/* SECTION 3: MATÉRIAUX */}
           {activeSection === 'materiaux' && (
-            <div>
-              <div style={{
-                marginBottom: '28px',
-                paddingBottom: '20px',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '12px'
-              }}>
-                <div>
-                  <h1 style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: '28px', fontWeight: 400, color: '#f7f3ea', margin: '0 0 6px' }}>
-                    Matériaux d'Exception
-                  </h1>
-                  <p style={{ fontSize: '13px', color: '#a0988c', margin: 0 }}>
-                    Les pierres nobles et marbres présentés sur la section <a href="/#materiaux" target="_blank" rel="noopener noreferrer" style={{ color: '#c5a059' }}>#materiaux</a>.
-                  </p>
-                </div>
-                <a
-                  href="/#materiaux"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '8px 14px',
-                    borderRadius: '8px',
-                    background: 'rgba(197, 160, 89, 0.12)',
-                    color: '#c5a059',
-                    fontSize: '12px',
-                    fontWeight: 600,
-                    textDecoration: 'none'
-                  }}
-                >
-                  Ouvrir #materiaux ↗
-                </a>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
-                {ALL_MATERIALS_DATA.map((mat) => (
-                  <div
-                    key={mat.k}
-                    style={{
-                      background: 'rgba(26, 24, 22, 0.8)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      borderRadius: '12px',
-                      padding: '24px'
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-                      <h3 style={{ fontSize: '20px', fontFamily: "'Fraunces', Georgia, serif", color: '#f7f3ea', margin: 0 }}>
-                        {mat.t}
-                      </h3>
-                      <span style={{
-                        fontSize: '11px',
-                        padding: '3px 8px',
-                        borderRadius: '6px',
-                        background: 'rgba(255, 255, 255, 0.06)',
-                        color: '#c5a059'
-                      }}>
-                        {mat.s}
-                      </span>
-                    </div>
-
-                    <p style={{ fontSize: '13px', color: '#a0988c', lineHeight: 1.6, marginBottom: '18px' }}>
-                      {mat.d}
-                    </p>
-
-                    <div>
-                      <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#7a7266', display: 'block', marginBottom: '8px' }}>
-                        Finitions disponibles :
-                      </span>
-                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                        {mat.f.map((fin) => (
-                          <span
-                            key={fin}
-                            style={{
-                              fontSize: '11px',
-                              padding: '4px 10px',
-                              borderRadius: '6px',
-                              background: 'rgba(197, 160, 89, 0.12)',
-                              color: '#efe8db',
-                              border: '1px solid rgba(197, 160, 89, 0.2)'
-                            }}
-                          >
-                            {fin}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <MateriauxAdmin token={token} onCountChange={setMateriauxCount} />
           )}
 
           {/* SECTION 4: RÉALISATIONS */}
           {activeSection === 'realisations' && (
-            <div>
-              <div style={{
-                marginBottom: '28px',
-                paddingBottom: '20px',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '12px'
-              }}>
-                <div>
-                  <h1 style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: '28px', fontWeight: 400, color: '#f7f3ea', margin: '0 0 6px' }}>
-                    Chantiers & Réalisations d'Exception
-                  </h1>
-                  <p style={{ fontSize: '13px', color: '#a0988c', margin: 0 }}>
-                    Les {REALISATIONS_DATA.length} projets répertoriés sur la section <a href="/#realisations" target="_blank" rel="noopener noreferrer" style={{ color: '#c5a059' }}>#realisations</a> et la page <Link to="/realisations" style={{ color: '#c5a059' }}>/realisations</Link>.
-                  </p>
-                </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <a
-                    href="/#realisations"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      padding: '8px 14px',
-                      borderRadius: '8px',
-                      background: 'rgba(197, 160, 89, 0.12)',
-                      color: '#c5a059',
-                      fontSize: '12px',
-                      fontWeight: 600,
-                      textDecoration: 'none'
-                    }}
-                  >
-                    Section #realisations ↗
-                  </a>
-                  <Link
-                    to="/realisations"
-                    target="_blank"
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      padding: '8px 14px',
-                      borderRadius: '8px',
-                      background: 'rgba(255, 255, 255, 0.06)',
-                      color: '#f7f3ea',
-                      fontSize: '12px',
-                      fontWeight: 600,
-                      textDecoration: 'none'
-                    }}
-                  >
-                    Page Complète ↗
-                  </Link>
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '22px' }}>
-                {REALISATIONS_DATA.map((proj) => (
-                  <div
-                    key={proj.id}
-                    style={{
-                      background: 'rgba(26, 24, 22, 0.8)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      borderRadius: '12px',
-                      padding: '24px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between'
-                    }}
-                  >
-                    <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                        <span style={{
-                          fontSize: '10px',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.12em',
-                          color: '#c5a059',
-                          fontWeight: 700
-                        }}>
-                          {proj.catLabel}
-                        </span>
-                        <span style={{
-                          fontSize: '11px',
-                          color: '#a0988c',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '4px'
-                        }}>
-                          <MapPin size={12} color="#c5a059" /> {proj.loc}
-                        </span>
-                      </div>
-
-                      <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#f7f3ea', margin: '0 0 10px', lineHeight: 1.3 }}>
-                        {proj.title}
-                      </h3>
-
-                      <p style={{ fontSize: '13px', color: '#a0988c', lineHeight: 1.6, marginBottom: '16px' }}>
-                        {proj.desc}
-                      </p>
-                    </div>
-
-                    <div style={{
-                      paddingTop: '16px',
-                      borderTop: '1px solid rgba(255, 255, 255, 0.06)',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      fontSize: '12px'
-                    }}>
-                      <span style={{ color: '#c5a059' }}>{proj.stone}</span>
-                      <span style={{ color: '#7a7266' }}>{proj.finish}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <RealisationsAdmin token={token} onCountChange={setRealisationsCount} />
           )}
 
           {/* SECTION 5: MÉTHODE */}
           {activeSection === 'methode' && (
-            <div>
-              <div style={{
-                marginBottom: '28px',
-                paddingBottom: '20px',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '12px'
-              }}>
-                <div>
-                  <h1 style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: '28px', fontWeight: 400, color: '#f7f3ea', margin: '0 0 6px' }}>
-                    Méthode de Travail & Processus
-                  </h1>
-                  <p style={{ fontSize: '13px', color: '#a0988c', margin: 0 }}>
-                    Les 4 étapes du protocole d'artisanat présentées sur la section <a href="/#methode" target="_blank" rel="noopener noreferrer" style={{ color: '#c5a059' }}>#methode</a>.
-                  </p>
-                </div>
-                <a
-                  href="/#methode"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '8px 14px',
-                    borderRadius: '8px',
-                    background: 'rgba(197, 160, 89, 0.12)',
-                    color: '#c5a059',
-                    fontSize: '12px',
-                    fontWeight: 600,
-                    textDecoration: 'none'
-                  }}
-                >
-                  Ouvrir #methode ↗
-                </a>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-                {METHOD_STEPS.map((step) => (
-                  <div
-                    key={step.step}
-                    style={{
-                      background: 'rgba(26, 24, 22, 0.8)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      borderRadius: '12px',
-                      padding: '24px'
-                    }}
-                  >
-                    <div style={{
-                      fontFamily: "'Fraunces', Georgia, serif",
-                      fontSize: '28px',
-                      color: '#c5a059',
-                      fontWeight: 300,
-                      marginBottom: '10px'
-                    }}>
-                      {step.step}
-                    </div>
-                    <h3 style={{ fontSize: '17px', fontWeight: 600, color: '#f7f3ea', margin: '0 0 10px' }}>
-                      {step.title}
-                    </h3>
-                    <p style={{ fontSize: '13px', color: '#a0988c', lineHeight: 1.6, margin: 0 }}>
-                      {step.desc}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <MethodeAdmin token={token} onCountChange={setMethodeCount} />
           )}
 
           {/* SECTION 6: FAQ */}
           {activeSection === 'faq' && (
-            <div>
-              <div style={{
-                marginBottom: '28px',
-                paddingBottom: '20px',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '12px'
-              }}>
-                <div>
-                  <h1 style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: '28px', fontWeight: 400, color: '#f7f3ea', margin: '0 0 6px' }}>
-                    Foire Aux Questions (FAQ)
-                  </h1>
-                  <p style={{ fontSize: '13px', color: '#a0988c', margin: 0 }}>
-                    Les {FAQ_DATA.length} réponses aux questions fréquentes sur la section <a href="/#faq" target="_blank" rel="noopener noreferrer" style={{ color: '#c5a059' }}>#faq</a>.
-                  </p>
-                </div>
-                <a
-                  href="/#faq"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '8px 14px',
-                    borderRadius: '8px',
-                    background: 'rgba(197, 160, 89, 0.12)',
-                    color: '#c5a059',
-                    fontSize: '12px',
-                    fontWeight: 600,
-                    textDecoration: 'none'
-                  }}
-                >
-                  Ouvrir #faq ↗
-                </a>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {FAQ_DATA.map((item, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      background: 'rgba(26, 24, 22, 0.8)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      borderRadius: '12px',
-                      padding: '24px'
-                    }}
-                  >
-                    <h3 style={{
-                      fontSize: '16px',
-                      fontWeight: 600,
-                      color: '#f7f3ea',
-                      margin: '0 0 10px',
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: '10px'
-                    }}>
-                      <span style={{ color: '#c5a059', fontWeight: 700 }}>Q{idx + 1}.</span>
-                      <span>{item.q}</span>
-                    </h3>
-                    <p style={{
-                      fontSize: '13px',
-                      color: '#a0988c',
-                      lineHeight: 1.6,
-                      margin: 0,
-                      paddingLeft: '32px'
-                    }}>
-                      {item.a}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <FaqAdmin token={token} onCountChange={setFaqCount} />
           )}
         </main>
       </div>
