@@ -168,7 +168,7 @@ export default function AdminDashboardPage() {
         zIndex: 100,
         transform: mobileMenuOpen ? 'translateX(0)' : undefined,
         transition: 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)'
-      }} className="admin-sidebar">
+      }} className={`admin-sidebar ${mobileMenuOpen ? 'open' : ''}`}>
         {/* Sidebar Brand Header */}
         <div style={{
           padding: '24px 20px',
@@ -215,16 +215,17 @@ export default function AdminDashboardPage() {
             onClick={() => setMobileMenuOpen(false)}
             style={{
               display: 'none',
-              background: 'transparent',
-              border: 'none',
-              color: '#a0988c',
+              background: 'rgba(255, 255, 255, 0.06)',
+              border: '1px solid rgba(197, 160, 89, 0.3)',
+              borderRadius: '8px',
+              color: '#c5a059',
               cursor: 'pointer',
               padding: '6px'
             }}
             className="mobile-close-btn"
             aria-label="Fermer le menu"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
@@ -241,8 +242,8 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Sidebar Navigation Items */}
-        <nav style={{ flex: 1, padding: '0 12px', overflowY: 'auto' }}>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div className="admin-nav-section" style={{ flex: 1, padding: '0 12px', overflowY: 'auto' }}>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
             {sidebarItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeSection === item.id;
@@ -337,7 +338,7 @@ export default function AdminDashboardPage() {
               );
             })}
           </ul>
-        </nav>
+        </div>
 
         {/* Sidebar Footer User Capsule */}
         <div style={{
@@ -420,7 +421,7 @@ export default function AdminDashboardPage() {
         minHeight: '100vh'
       }} className="admin-main">
         {/* Top Navbar */}
-        <header style={{
+        <div style={{
           background: 'rgba(24, 22, 20, 0.85)',
           backdropFilter: 'blur(16px)',
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
@@ -515,7 +516,7 @@ export default function AdminDashboardPage() {
               <ExternalLink size={13} />
             </a>
           </div>
-        </header>
+        </div>
 
         {/* Dynamic Section Content */}
         <main style={{ flex: 1, padding: '32px 36px', maxWidth: '1280px', width: '100%', boxSizing: 'border-box' }}>
@@ -1211,16 +1212,31 @@ export default function AdminDashboardPage() {
 
         @media (max-width: 900px) {
           .admin-sidebar {
-            transform: translateX(-100%);
+            transform: translateX(-100%) !important;
+            width: min(300px, 86vw) !important;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.85) !important;
+            z-index: 1000 !important;
+          }
+          .admin-sidebar.open {
+            transform: translateX(0) !important;
           }
           .admin-main {
             margin-left: 0 !important;
           }
           .mobile-hamburger {
-            display: block !important;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
           }
           .mobile-close-btn {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+          }
+          .admin-nav-section {
             display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
           }
         }
       `}</style>
