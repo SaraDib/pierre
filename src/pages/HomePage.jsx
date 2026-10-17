@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import StoneTexture from '../components/StoneTexture';
+import { getAcceuilContent, formatMediaUrl } from '../api/acceuil';
 import {
   MATERIALS_DATA,
   ALL_MATERIALS_DATA,
@@ -12,6 +13,34 @@ import {
 } from '../data/content';
 
 export default function HomePage() {
+  // Contenu d'accueil dynamique (depuis la table acceuil)
+  const [homeContent, setHomeContent] = useState({
+    eyebrow: 'Marbre · Granit · Pierre naturelle — Maroc',
+    title_line1: 'La pierre,',
+    title_line2: 'taillée',
+    title_line3: 'pour durer.',
+    description: 'SUTRAVOMAR STONE LUXE sélectionne, façonne et pose des pierres nobles pour vos façades, escaliers, cuisines, piscines et espaces extérieurs. Du bloc brut à la finition parfaite.',
+    video_url: '/videos/logo-reveal.mp4',
+    arch_badge: 'Collection',
+    arch_title: 'Beige de Taza, poli',
+    arch_material: 'travertin',
+    arch_image: null,
+    stat1_number: '30+',
+    stat1_label: 'Variétés de pierres',
+    stat2_number: '100%',
+    stat2_label: 'Sur mesure',
+    stat3_number: 'Maroc',
+    stat3_label: 'Livraison & pose',
+    marquee_words: MARQUEE_WORDS
+  });
+
+  useEffect(() => {
+    getAcceuilContent().then((data) => {
+      if (data) {
+        setHomeContent((prev) => ({ ...prev, ...data }));
+      }
+    });
+  }, []);
   // Matériaux interactifs
   const [currentMatIndex, setCurrentMatIndex] = useState(0);
   const [currentFinIndex, setCurrentFinIndex] = useState(0);
@@ -41,14 +70,21 @@ export default function HomePage() {
   const [counts, setCounts] = useState({ varieties: 0, custom: 0 });
   const countsAnimated = useRef(false);
 
-  // Initialisation vidéo Hero
+  // Initialisation et lecture fluide de la vidéo Hero
   useEffect(() => {
     if (videoRef.current) {
-      if (videoRef.current.readyState >= 3) {
+      videoRef.current.defaultMuted = true;
+      videoRef.current.muted = true;
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => setVideoReady(true))
+          .catch(() => setVideoReady(true));
+      } else {
         setVideoReady(true);
       }
     }
-  }, []);
+  }, [homeContent.video_url]);
 
   // Défilement fluide vers ancres si URL avec hash
   useEffect(() => {
@@ -181,10 +217,11 @@ export default function HomePage() {
         {/* ===== HERO SECTION ===== */}
         <section className="hero" id="accueil" data-label="Accueil">
           <video
+            key={formatMediaUrl(homeContent.video_url)}
             ref={videoRef}
             className={`hero-video ${videoReady ? 'ready' : ''}`}
             id="heroVideo"
-            src="/videos/logo-reveal.mp4"
+            src={formatMediaUrl(homeContent.video_url) || "/videos/logo-reveal.mp4"}
             autoPlay
             muted
             loop
@@ -193,6 +230,8 @@ export default function HomePage() {
             aria-hidden="true"
             tabIndex="-1"
             onCanPlay={() => setVideoReady(true)}
+            onLoadedData={() => setVideoReady(true)}
+            onPlay={() => setVideoReady(true)}
           />
 
           <svg className="strata-lines" viewBox="0 0 1440 900" preserveAspectRatio="none" aria-hidden="true">
@@ -207,15 +246,14 @@ export default function HomePage() {
 
           <div className="wrap hero-grid">
             <div>
-              <div className="eyebrow rv">Marbre · Granit · Pierre naturelle — Maroc</div>
+              <div className="eyebrow rv">{homeContent.eyebrow}</div>
               <h1 className="rv d1" style={{ marginTop: '28px' }}>
-                <span>La pierre,</span>
-                <span className="l2"><em>taillée</em></span>
-                <span>pour durer.</span>
+                <span>{homeContent.title_line1}</span>
+                <span className="l2"><em>{homeContent.title_line2}</em></span>
+                <span>{homeContent.title_line3}</span>
               </h1>
               <p className="lead rv d2">
-                SUTRAVOMAR STONE LUXE sélectionne, façonne et pose des pierres nobles pour vos façades,
-                escaliers, cuisines, piscines et espaces extérieurs. Du bloc brut à la finition parfaite.
+                {homeContent.description}
               </p>
 
               <div className="hero-actions rv d3">
@@ -229,16 +267,16 @@ export default function HomePage() {
 
               <div className="stats rv d3">
                 <div>
-                  <b>{counts.varieties}<sup>+</sup></b>
-                  <small>Variétés de pierres</small>
+                  <b>{counts.varieties ? `${counts.varieties}+` : (homeContent.stat1_number || '30+')}</b>
+                  <small>{homeContent.stat1_label || 'Variétés de pierres'}</small>
                 </div>
                 <div>
-                  <b>{counts.custom}%</b>
-                  <small>Sur mesure</small>
+                  <b>{counts.custom ? `${counts.custom}%` : (homeContent.stat2_number || '100%')}</b>
+                  <small>{homeContent.stat2_label || 'Sur mesure'}</small>
                 </div>
                 <div>
-                  <b>Maroc</b>
-                  <small>Livraison & pose</small>
+                  <b>{homeContent.stat3_number || 'Maroc'}</b>
+                  <small>{homeContent.stat3_label || 'Livraison & pose'}</small>
                 </div>
               </div>
             </div>
@@ -246,16 +284,24 @@ export default function HomePage() {
             <div className="arch-wrap rv d2">
               <div className="arch-outline" />
               <div className="arch">
-                <StoneTexture
-                  material={MATERIALS_DATA.find((m) => m.k === 'travertin')}
-                  className="tex"
-                  style={{ position: 'absolute', inset: 0 }}
-                />
+                {homeContent.arch_image ? (
+                  <img
+                    src={formatMediaUrl(homeContent.arch_image)}
+                    alt={homeContent.arch_title}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }}
+                  />
+                ) : (
+                  <StoneTexture
+                    material={MATERIALS_DATA.find((m) => m.k === (homeContent.arch_material || 'travertin')) || MATERIALS_DATA[2]}
+                    className="tex"
+                    style={{ position: 'absolute', inset: 0 }}
+                  />
+                )}
                 <div className="sheen" />
               </div>
               <div className="tag">
-                <small>Collection</small>
-                <b>Beige de Taza, poli</b>
+                <small>{homeContent.arch_badge || 'Collection'}</small>
+                <b>{homeContent.arch_title || 'Beige de Taza, poli'}</b>
               </div>
             </div>
           </div>
@@ -266,9 +312,14 @@ export default function HomePage() {
         {/* ===== MARQUEE ===== */}
         <div className="marquee" aria-hidden="true">
           <div>
-            {[...MARQUEE_WORDS, ...MARQUEE_WORDS, ...MARQUEE_WORDS, ...MARQUEE_WORDS].map((word, idx) => (
-              <span key={idx}>{word}</span>
-            ))}
+            {(() => {
+              const words = Array.isArray(homeContent.marquee_words) && homeContent.marquee_words.length > 0
+                ? homeContent.marquee_words
+                : MARQUEE_WORDS;
+              return [...words, ...words, ...words, ...words].map((word, idx) => (
+                <span key={idx}>{word}</span>
+              ));
+            })()}
           </div>
         </div>
 
