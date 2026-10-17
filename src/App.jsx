@@ -5,6 +5,10 @@ import Footer from './components/Footer';
 import FloatingButtons from './components/FloatingButtons';
 import HomePage from './pages/HomePage';
 import RealisationsPage from './pages/RealisationsPage';
+import AdminLoginPage from './pages/AdminLoginPage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './context/AuthContext';
 
 function ScrollToAnchor() {
   const { pathname, hash } = useLocation();
@@ -25,18 +29,48 @@ function ScrollToAnchor() {
   return null;
 }
 
-export default function App() {
+function AppContent() {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
   return (
-    <BrowserRouter>
+    <>
       <ScrollToAnchor />
-      <Header />
+      {!isAdminRoute && <Header />}
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/realisations" element={<RealisationsPage />} />
+        <Route path="/admin/login" element={<AdminLoginPage />} />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/*"
+          element={
+            <ProtectedRoute>
+              <AdminDashboardPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<HomePage />} />
       </Routes>
-      <Footer />
-      <FloatingButtons />
+      {!isAdminRoute && <Footer />}
+      {!isAdminRoute && <FloatingButtons />}
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </BrowserRouter>
   );
 }
