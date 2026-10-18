@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useCompany } from '../context/CompanyContext';
+import { formatCompanyMediaUrl } from '../api/company';
 import { Lock, Mail, Eye, EyeOff, ShieldCheck, ArrowLeft, Loader2 } from 'lucide-react';
 
 export default function AdminLoginPage() {
+  const { company } = useCompany();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -97,10 +100,10 @@ export default function AdminLoginPage() {
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
           <img
-            src="/logo-gold.png"
-            alt="Sutravomar Stone Luxe"
+            src={formatCompanyMediaUrl(company?.logo_url) || "/logo-gold.png"}
+            alt={company?.name || "Sutravomar Stone Luxe"}
             style={{ width: '42px', height: '42px', objectFit: 'contain' }}
-            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            onError={(e) => { e.currentTarget.src = '/logo-gold.png'; }}
           />
           <div style={{ textAlign: 'left' }}>
             <div style={{
@@ -110,7 +113,7 @@ export default function AdminLoginPage() {
               fontWeight: 500,
               color: '#f7f3ea'
             }}>
-              SUTRAVOMAR
+              {company?.name || 'SUTRAVOMAR'}
             </div>
             <div style={{
               fontSize: '10px',
@@ -119,7 +122,7 @@ export default function AdminLoginPage() {
               color: '#c5a059',
               fontWeight: 600
             }}>
-              STONE LUXE · ADMIN
+              {company?.tagline || 'STONE LUXE'} · ADMIN
             </div>
           </div>
         </div>

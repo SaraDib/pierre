@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { WHATSAPP_PHONE } from '../data/content';
+import { useCompany } from '../context/CompanyContext';
 
 export default function FloatingButtons() {
+  const { company } = useCompany();
   const [showUp, setShowUp] = useState(false);
 
   useEffect(() => {
@@ -16,6 +18,9 @@ export default function FloatingButtons() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const whatsappNumber = company?.whatsapp_number || WHATSAPP_PHONE;
+  const phoneNumber = company?.phone ? company.phone.replace(/\s+/g, '') : `+${whatsappNumber}`;
+
   return (
     <>
       {/* Bouton WhatsApp flottant avec SVG officiel */}
@@ -23,7 +28,7 @@ export default function FloatingButtons() {
         <a
           className="wa"
           id="waBtn"
-          href={`https://wa.me/${WHATSAPP_PHONE}`}
+          href={`https://wa.me/${whatsappNumber}`}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Discuter sur WhatsApp"
@@ -53,7 +58,7 @@ export default function FloatingButtons() {
 
         <a
           className="call"
-          href={`tel:+${WHATSAPP_PHONE}`}
+          href={`tel:${phoneNumber}`}
           aria-label="Appeler notre équipe"
         >
           ☎

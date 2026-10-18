@@ -11,8 +11,11 @@ import {
   MARQUEE_WORDS,
   WHATSAPP_PHONE
 } from '../data/content';
+import { useCompany } from '../context/CompanyContext';
+import { getDevisSection, submitDevis, DEFAULT_DEVIS_SECTION } from '../api/devis';
 
 export default function HomePage() {
+  const { company } = useCompany();
   // Contenu d'accueil dynamique (depuis la table acceuil)
   const [homeContent, setHomeContent] = useState({
     eyebrow: 'Marbre · Granit · Pierre naturelle — Maroc',
@@ -201,6 +204,15 @@ export default function HomePage() {
     ms: ''
   });
 
+  // Contenu dynamique de la section Devis
+  const [devisSection, setDevisSection] = useState(DEFAULT_DEVIS_SECTION);
+
+  useEffect(() => {
+    getDevisSection().then((data) => {
+      if (data) setDevisSection((prev) => ({ ...prev, ...data }));
+    });
+  }, []);
+
   // Strate de progression latérale
   const [currentSectionLabel, setCurrentSectionLabel] = useState('Strate 01 — Accueil');
   const [railProgress, setRailProgress] = useState(0);
@@ -338,10 +350,22 @@ export default function HomePage() {
     setOpenFaqIndex(openFaqIndex === index ? null : index);
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    const text = `Bonjour SUTRAVOMAR STONE LUXE,\nJe souhaite un devis.\nNom : ${formData.nm}\nTéléphone : ${formData.tl}\nProjet : ${formData.tp}\nMessage : ${formData.ms}`;
-    window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(text)}`, '_blank');
+    const brandName = `${company?.name || 'SUTRAVOMAR'} ${company?.tagline || 'STONE LUXE'}`.trim();
+    const text = `Bonjour ${brandName},\nJe souhaite un devis.\nNom : ${formData.nm}\nTéléphone : ${formData.tl}\nProjet : ${formData.tp}\nMessage : ${formData.ms}`;
+    const wa = company?.whatsapp_number || WHATSAPP_PHONE;
+
+    // Enregistrement de la trace en base de données
+    await submitDevis({
+      name: formData.nm,
+      phone: formData.tl,
+      project_type: formData.tp,
+      message: formData.ms
+    });
+
+    // Ouverture de WhatsApp
+    window.open(`https://wa.me/${wa}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   const matItems = materiaux?.items ?? [];
@@ -814,22 +838,23 @@ export default function HomePage() {
         <section className="sec quote" id="devis" data-label="Devis">
           <div className="wrap quote-grid">
             <div>
-              <div className="eyebrow rv">Devis sur mesure</div>
+              <div className="eyebrow rv">{devisSection.eyebrow}</div>
               <h2 className="rv d1" style={{ marginTop: '20px' }}>
-                Donnez vie à <em>vos projets de pierre.</em>
+                {devisSection.title_prefix}{' '}
+                {devisSection.title_emphasis && <em>{devisSection.title_emphasis}</em>}
               </h2>
               <p className="rv d2" style={{ marginTop: '24px', color: 'rgba(239, 232, 219, .7)' }}>
-                Partagez-nous les dimensions, surfaces et inspirations de votre ouvrage. Notre bureau d'études vous transmet une estimation détaillée et personnalisée.
+                {devisSection.description}
               </p>
 
               <div className="stats rv d3" style={{ borderTopColor: 'var(--line-l)' }}>
                 <div>
-                  <b style={{ color: 'var(--ochre)' }}>24h</b>
-                  <small>Délai de réponse</small>
+                  <b style={{ color: 'var(--ochre)' }}>{devisSection.stat1_value}</b>
+                  <small>{devisSection.stat1_label}</small>
                 </div>
                 <div>
-                  <b style={{ color: 'var(--ochre)' }}>Gratuit</b>
-                  <small>Étude & chiffrage</small>
+                  <b style={{ color: 'var(--ochre)' }}>{devisSection.stat2_value}</b>
+                  <small>{devisSection.stat2_label}</small>
                 </div>
               </div>
             </div>
@@ -888,9 +913,9 @@ export default function HomePage() {
                 </div>
 
                 <button className="btn btn-ochre" type="submit" style={{ justifyContent: 'center' }}>
-                  Envoyer via WhatsApp <span className="ar">→</span>
+                  {devisSection.button_text || 'Envoyer via WhatsApp'} <span className="ar">→</span>
                 </button>
-                <p className="note">Le message se prépare automatiquement dans WhatsApp, prêt à être expédié.</p>
+                <p className="note">{devisSection.note_text || 'Le message se prépare automatiquement dans WhatsApp, prêt à être expédié.'}</p>
               </form>
             </div>
           </div>

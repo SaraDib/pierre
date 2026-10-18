@@ -1,25 +1,69 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useCompany } from '../context/CompanyContext';
+import { formatCompanyMediaUrl } from '../api/company';
 
 export default function Footer() {
+  const { company } = useCompany();
+
   return (
     <footer>
       <div className="wrap">
         <div className="big" aria-hidden="true">
-          SUTRAVOMAR
+          {company.name || 'SUTRAVOMAR'}
         </div>
 
         <div className="fgrid">
           <div>
             <img
-              src="/logo-gold.png"
-              alt="SUTRAVOMAR STONE LUXE"
+              src={formatCompanyMediaUrl(company.logo_url) || '/logo-gold.png'}
+              alt={`${company.name} ${company.tagline || ''}`}
               className="footer-logo"
+              onError={(e) => { e.currentTarget.src = '/logo-gold.png'; }}
             />
-            <h4>SUTRAVOMAR STONE LUXE</h4>
-            <p style={{ maxWidth: '300px', fontSize: '14px' }}>
-              Marbre, granit et pierre naturelle : sélection, taille, vente et pose partout au Maroc.
+            <h4>{company.name} {company.tagline}</h4>
+            <p style={{ maxWidth: '300px', fontSize: '14px', lineHeight: '1.6' }}>
+              {company.description || 'Marbre, granit et pierre naturelle : sélection, taille, vente et pose partout au Maroc.'}
             </p>
+
+            {/* Social links if configured */}
+            {(company.instagram_url || company.facebook_url || company.linkedin_url) && (
+              <div style={{ display: 'flex', gap: '12px', marginTop: '14px' }}>
+                {company.instagram_url && (
+                  <a
+                    href={company.instagram_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Instagram"
+                    style={{ color: '#c5a059', fontSize: '13px', textDecoration: 'none' }}
+                  >
+                    Instagram ↗
+                  </a>
+                )}
+                {company.facebook_url && (
+                  <a
+                    href={company.facebook_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Facebook"
+                    style={{ color: '#c5a059', fontSize: '13px', textDecoration: 'none' }}
+                  >
+                    Facebook ↗
+                  </a>
+                )}
+                {company.linkedin_url && (
+                  <a
+                    href={company.linkedin_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="LinkedIn"
+                    style={{ color: '#c5a059', fontSize: '13px', textDecoration: 'none' }}
+                  >
+                    LinkedIn ↗
+                  </a>
+                )}
+              </div>
+            )}
           </div>
 
           <div>
@@ -48,17 +92,37 @@ export default function Footer() {
           <div>
             <h4>Contact & Chantiers</h4>
             <ul>
-              <li>+212 6 00 00 00 00</li>
-              <li>contact@sutravomar-stone.ma</li>
-              <li>Atelier & Showroom, Maroc</li>
-              <li style={{ color: 'var(--ochre)' }}>Intervention dans tout le Maroc</li>
+              {company.phone && (
+                <li>
+                  <a href={`tel:${company.phone.replace(/\s+/g, '')}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                    {company.phone}
+                  </a>
+                </li>
+              )}
+              {company.phone_secondary && (
+                <li style={{ color: '#a0988c' }}>{company.phone_secondary}</li>
+              )}
+              {company.email && (
+                <li>
+                  <a href={`mailto:${company.email}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                    {company.email}
+                  </a>
+                </li>
+              )}
+              {company.address && <li>{company.address}</li>}
+              {company.opening_hours && (
+                <li style={{ fontSize: '12px', color: '#a0988c' }}>{company.opening_hours}</li>
+              )}
+              {company.intervention_zone && (
+                <li style={{ color: 'var(--ochre)' }}>{company.intervention_zone}</li>
+              )}
             </ul>
           </div>
         </div>
 
         <div className="fbot">
-          <span>© 2026 SUTRAVOMAR STONE LUXE. Tous droits réservés.</span>
-          <span>Marbre · Granit · Pierre naturelle</span>
+          <span>{company.copyright || `© 2026 ${company.name || 'SUTRAVOMAR'}. Tous droits réservés.`}</span>
+          <span>{company.name} · {company.tagline || 'Marbre · Granit · Pierre naturelle'}</span>
         </div>
       </div>
     </footer>

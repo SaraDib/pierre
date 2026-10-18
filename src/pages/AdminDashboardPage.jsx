@@ -8,6 +8,7 @@ import {
   Boxes,
   ListChecks,
   HelpCircle,
+  Building2,
   ExternalLink,
   LogOut,
   User,
@@ -45,12 +46,18 @@ import MateriauxAdmin from '../components/MateriauxAdmin';
 import RealisationsAdmin from '../components/RealisationsAdmin';
 import MethodeAdmin from '../components/MethodeAdmin';
 import FaqAdmin from '../components/FaqAdmin';
+import CompanyAdmin from '../components/CompanyAdmin';
+import DevisAdmin from '../components/DevisAdmin';
+import { useCompany } from '../context/CompanyContext';
+import { formatCompanyMediaUrl } from '../api/company';
 import { getMateriauxAdmin } from '../api/materiaux';
 import { getRealisationsAdmin } from '../api/realisations';
 import { getMethodeAdmin } from '../api/methode';
+import { getDevisStats } from '../api/devis';
 
 export default function AdminDashboardPage() {
   const { user, token, logout } = useAuth();
+  const { company } = useCompany();
   const navigate = useNavigate();
 
   const [activeSection, setActiveSection] = useState('accueil');
@@ -63,6 +70,7 @@ export default function AdminDashboardPage() {
   const [realisationsCount, setRealisationsCount] = useState(null);
   const [methodeCount, setMethodeCount] = useState(null);
   const [faqCount, setFaqCount] = useState(null);
+  const [devisCount, setDevisCount] = useState(null);
   const [materiauxOptions, setMateriauxOptions] = useState([]);
 
   // Formulaire d'édition Accueil (Table acceuil)
@@ -135,6 +143,20 @@ export default function AdminDashboardPage() {
       path: '/#faq',
       icon: HelpCircle,
       badge: faqCount === null ? 'FAQ' : `${faqCount} questions`
+    },
+    {
+      id: 'devis',
+      label: 'Devis & Demandes',
+      path: '/#devis',
+      icon: FileText,
+      badge: devisCount > 0 ? `${devisCount} nouveaux` : 'Devis & WhatsApp'
+    },
+    {
+      id: 'entreprise',
+      label: 'Entreprise & Contacts',
+      path: '/#devis',
+      icon: Building2,
+      badge: 'Logo & Infos'
     }
   ];
 
@@ -200,6 +222,14 @@ export default function AdminDashboardPage() {
       .then((data) => {
         if (data?.items) {
           setMethodeCount(data.items.length);
+        }
+      })
+      .catch(() => {});
+
+    getDevisStats(token)
+      .then((data) => {
+        if (data?.nouveau !== undefined) {
+          setDevisCount(data.nouveau);
         }
       })
       .catch(() => {});
@@ -337,10 +367,10 @@ export default function AdminDashboardPage() {
             onClick={() => setActiveSection('accueil')}
           >
             <img
-              src="/logo-gold.png"
-              alt="Sutravomar"
+              src={formatCompanyMediaUrl(company?.logo_url) || "/logo-gold.png"}
+              alt={company?.name || "Sutravomar"}
               style={{ width: '36px', height: '36px', objectFit: 'contain' }}
-              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              onError={(e) => { e.currentTarget.src = '/logo-gold.png'; }}
             />
             <div>
               <div style={{
@@ -350,7 +380,7 @@ export default function AdminDashboardPage() {
                 color: '#f7f3ea',
                 letterSpacing: '0.04em'
               }}>
-                SUTRAVOMAR
+                {company?.name || 'SUTRAVOMAR'}
               </div>
               <div style={{
                 fontSize: '9px',
@@ -359,7 +389,7 @@ export default function AdminDashboardPage() {
                 textTransform: 'uppercase',
                 fontWeight: 600
               }}>
-                STONE LUXE · ADMIN
+                {company?.tagline || 'STONE LUXE'} · ADMIN
               </div>
             </div>
           </Link>
@@ -1415,6 +1445,16 @@ export default function AdminDashboardPage() {
           {/* SECTION 6: FAQ */}
           {activeSection === 'faq' && (
             <FaqAdmin token={token} onCountChange={setFaqCount} />
+          )}
+
+          {/* SECTION 7: ENTREPRISE & CONTACTS */}
+          {activeSection === 'entreprise' && (
+            <CompanyAdmin token={token} />
+          )}
+
+          {/* SECTION 8: GESTIONNAIRE DES DEVIS & WHATSAPP */}
+          {activeSection === 'devis' && (
+            <DevisAdmin token={token} onCountChange={setDevisCount} />
           )}
         </main>
       </div>

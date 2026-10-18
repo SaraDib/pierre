@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useCompany } from '../context/CompanyContext';
+import { formatCompanyMediaUrl } from '../api/company';
 
 export default function Header() {
+  const { company } = useCompany();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
@@ -45,11 +48,16 @@ export default function Header() {
   return (
     <header className={`${scrolled ? 's' : ''} ${menuOpen ? 'menu-open' : ''}`} id="hd">
       <div className="wrap nav">
-        <Link to="/#accueil" className="logo" aria-label="SUTRAVOMAR STONE LUXE" onClick={() => handleNavClick('#accueil')}>
-          <img src="/logo-gold.png" alt="SUTRAVOMAR STONE LUXE" className="logo-img" />
+        <Link to="/#accueil" className="logo" aria-label={`${company.name} ${company.tagline || ''}`} onClick={() => handleNavClick('#accueil')}>
+          <img
+            src={formatCompanyMediaUrl(company.logo_url) || "/logo-gold.png"}
+            alt={`${company.name} ${company.tagline || ''}`}
+            className="logo-img"
+            onError={(e) => { e.currentTarget.src = '/logo-gold.png'; }}
+          />
           <span className="logo-text">
-            <span className="logo-name">SUTRAVOMAR</span>
-            <span className="logo-tagline">STONE LUXE</span>
+            <span className="logo-name">{company.name}</span>
+            {company.tagline && <span className="logo-tagline">{company.tagline}</span>}
           </span>
         </Link>
 

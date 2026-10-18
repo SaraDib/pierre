@@ -9,6 +9,7 @@ import AdminLoginPage from './pages/AdminLoginPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
+import { CompanyProvider } from './context/CompanyContext';
 
 function ScrollToAnchor() {
   const { pathname, hash } = useLocation();
@@ -69,7 +70,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppContent />
+        <CompanyProvider>
+          <AppContent />
+        </CompanyProvider>
       </AuthProvider>
     </BrowserRouter>
   );
