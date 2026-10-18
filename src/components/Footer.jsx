@@ -27,7 +27,7 @@ export default function Footer() {
             </p>
 
             {/* Social links if configured */}
-            {(company.instagram_url || company.facebook_url || company.linkedin_url) && (
+            {(company.instagram_url || company.facebook_url) && (
               <div style={{ display: 'flex', gap: '12px', marginTop: '14px' }}>
                 {company.instagram_url && (
                   <a
@@ -49,17 +49,6 @@ export default function Footer() {
                     style={{ color: '#c5a059', fontSize: '13px', textDecoration: 'none' }}
                   >
                     Facebook ↗
-                  </a>
-                )}
-                {company.linkedin_url && (
-                  <a
-                    href={company.linkedin_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="LinkedIn"
-                    style={{ color: '#c5a059', fontSize: '13px', textDecoration: 'none' }}
-                  >
-                    LinkedIn ↗
                   </a>
                 )}
               </div>

@@ -35,7 +35,6 @@ export const DEFAULT_COMPANY = {
   intervention_zone: 'Intervention dans tout le Maroc',
   instagram_url: 'https://instagram.com',
   facebook_url: 'https://facebook.com',
-  linkedin_url: 'https://linkedin.com',
   maps_url: '',
   copyright: '© 2026 SUTRAVOMAR STONE LUXE. Tous droits réservés.',
 };

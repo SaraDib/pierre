@@ -35,16 +35,6 @@ function FacebookIcon({ size = 15, color = '#1877f2' }) {
     </svg>
   );
 }
-
-function LinkedinIcon({ size = 15, color = '#0a66c2' }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
-      <rect width="4" height="12" x="2" y="9"/>
-      <circle cx="4" cy="4" r="2"/>
-    </svg>
-  );
-}
 import {
   getCompanyInfo,
   updateCompanyInfo,
@@ -1031,29 +1021,6 @@ export default function CompanyAdmin({ token }) {
                   />
                 </div>
 
-                <div>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#a0988c', marginBottom: '6px', fontWeight: 600 }}>
-                    <LinkedinIcon size={14} color="#0a66c2" />
-                    <span>Lien LinkedIn</span>
-                  </label>
-                  <input
-                    type="url"
-                    value={form.linkedin_url || ''}
-                    onChange={(e) => setForm({ ...form, linkedin_url: e.target.value })}
-                    placeholder="https://www.linkedin.com/company/sutravomar"
-                    style={{
-                      width: '100%',
-                      boxSizing: 'border-box',
-                      background: 'rgba(17, 16, 15, 0.8)',
-                      border: '1px solid rgba(255, 255, 255, 0.12)',
-                      borderRadius: '8px',
-                      padding: '11px 12px',
-                      color: '#f7f3ea',
-                      fontSize: '13px',
-                      outline: 'none'
-                    }}
-                  />
-                </div>
               </div>
             </div>
           </div>
