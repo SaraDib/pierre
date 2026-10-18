@@ -388,7 +388,7 @@ export default function AdminLoginPage() {
         color: '#655e54',
         textAlign: 'center'
       }}>
-        © 2026 SUTRAVOMAR STONE LUXE · Système d'administration sécurisé
+        © {new Date().getFullYear()} SUTRAVOMAR STONE LUXE · Système d'administration sécurisé
       </div>
 
       <style>{`

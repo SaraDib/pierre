@@ -36,7 +36,7 @@ export const DEFAULT_COMPANY = {
   instagram_url: 'https://instagram.com',
   facebook_url: 'https://facebook.com',
   maps_url: '',
-  copyright: '© 2026 SUTRAVOMAR STONE LUXE. Tous droits réservés.',
+  copyright: `© ${new Date().getFullYear()} SUTRAVOMAR STONE LUXE. Tous droits réservés.`,
 };
 
 /**

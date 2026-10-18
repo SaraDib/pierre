@@ -5,6 +5,7 @@ import { formatCompanyMediaUrl } from '../api/company';
 
 export default function Footer() {
   const { company } = useCompany();
+  const currentYear = new Date().getFullYear();
 
   return (
     <footer>
@@ -110,7 +111,11 @@ export default function Footer() {
         </div>
 
         <div className="fbot">
-          <span>{company.copyright || `© 2026 ${company.name || 'SUTRAVOMAR'}. Tous droits réservés.`}</span>
+          <span>
+            {company.copyright
+              ? company.copyright.replace(/\b20\d{2}\b/, currentYear)
+              : `© ${currentYear} ${company.name || 'SUTRAVOMAR'}. Tous droits réservés.`}
+          </span>
           <span>{company.name} · {company.tagline || 'Marbre · Granit · Pierre naturelle'}</span>
         </div>
       </div>

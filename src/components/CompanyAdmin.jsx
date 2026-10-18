@@ -596,7 +596,7 @@ export default function CompanyAdmin({ token }) {
                   type="text"
                   value={form.copyright || ''}
                   onChange={(e) => setForm({ ...form, copyright: e.target.value })}
-                  placeholder="© 2026 SUTRAVOMAR STONE LUXE. Tous droits réservés."
+                  placeholder={`© ${new Date().getFullYear()} SUTRAVOMAR STONE LUXE. Tous droits réservés.`}
                   style={{
                     width: '100%',
                     boxSizing: 'border-box',
@@ -1188,7 +1188,7 @@ export default function CompanyAdmin({ token }) {
                   fontSize: '11px',
                   color: '#666'
                 }}>
-                  <span>{form.copyright}</span>
+                  <span>{(form.copyright || `© ${new Date().getFullYear()} ${form.name || 'SUTRAVOMAR'}. Tous droits réservés.`).replace(/\b20\d{2}\b/, new Date().getFullYear())}</span>
                   <span>{form.name} · {form.tagline}</span>
                 </div>
               </div>
