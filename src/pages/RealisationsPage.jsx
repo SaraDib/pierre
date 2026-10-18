@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { MapPin } from 'lucide-react';
 import { WHATSAPP_PHONE } from '../data/content';
 import { getRealisationsContent } from '../api/realisations';
 
@@ -230,7 +231,12 @@ export default function RealisationsPage() {
                   >
                     <div className="card-media">
                       {stoneTag && <span className="card-tag">{stoneTag}</span>}
-                      {locTag && <span className="card-loc">📍 {locTag}</span>}
+                      {locTag && (
+                        <span className="card-loc">
+                          <MapPin size={11} strokeWidth={2.5} style={{ flexShrink: 0 }} />
+                          <span>{locTag}</span>
+                        </span>
+                      )}
                       <img src={cover} alt={project.title} loading="lazy" />
                     </div>
                     <div className="card-body">

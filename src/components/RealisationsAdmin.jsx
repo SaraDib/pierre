@@ -17,7 +17,8 @@ import {
   Tag,
   Edit,
   X,
-  ImageIcon
+  ImageIcon,
+  MapPin
 } from 'lucide-react';
 import {
   getRealisationsAdmin,
@@ -943,10 +944,14 @@ export default function RealisationsAdmin({ token, onCountChange }) {
                                 style={{
                                   background: 'rgba(255, 255, 255, 0.05)',
                                   padding: '2px 8px',
-                                  borderRadius: '4px'
+                                  borderRadius: '4px',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px'
                                 }}
                               >
-                                📍 {item.location || item.loc}
+                                <MapPin size={11} color="#c5a059" />
+                                <span>{item.location || item.loc}</span>
                               </span>
                             )}
                             {item.finish && (
