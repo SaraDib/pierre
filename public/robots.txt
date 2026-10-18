@@ -1,0 +1,9 @@
+# Robots.txt pour SUTRAVOMAR STONE LUXE
+User-agent: *
+Allow: /
+Allow: /realisations
+Disallow: /admin/
+Disallow: /admin/*
+
+# Sitemap
+Sitemap: https://sutravomar-stone.ma/sitemap.xml

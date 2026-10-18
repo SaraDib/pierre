@@ -10,9 +10,13 @@ export default function RealisationsPage() {
   const [activeModalProject, setActiveModalProject] = useState(null);
   const [activeModalImg, setActiveModalImg] = useState(null);
 
-  // Scroll to top on mount
+  // Scroll to top on mount & SEO title
   useEffect(() => {
+    document.title = 'Nos Réalisations de Prestige | SUTRAVOMAR STONE LUXE Maroc';
     window.scrollTo({ top: 0, behavior: 'instant' });
+    return () => {
+      document.title = 'SUTRAVOMAR STONE LUXE | Marbre, Granit & Pierre Naturelle au Maroc';
+    };
   }, []);
 
   const loadData = () => {
