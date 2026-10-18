@@ -27,6 +27,7 @@ import {
   toStoneMaterial
 } from '../api/materiaux';
 import { formatMediaUrl } from '../api/acceuil';
+import LuxuryLoader from './LuxuryLoader';
 import StoneTexture from './StoneTexture';
 
 const card = {
@@ -794,7 +795,7 @@ export default function MateriauxAdmin({ token, onCountChange }) {
       {error && <Notice kind="error">{error}</Notice>}
 
       {loading ? (
-        <div style={{ color: '#a0988c' }}>Chargement…</div>
+        <LuxuryLoader size={70} minHeight="240px" />
       ) : (
         <>
           {/* 1. SECTION HEADER FORM */}

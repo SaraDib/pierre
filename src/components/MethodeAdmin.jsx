@@ -34,6 +34,7 @@ import {
   deleteMethodeItem,
   reorderMethodeItems
 } from '../api/methode';
+import LuxuryLoader from './LuxuryLoader';
 
 const cardStyle = {
   background: 'rgba(26, 24, 22, 0.85)',
@@ -474,9 +475,7 @@ export default function MethodeAdmin({ token, onCountChange }) {
       {error && <Notice kind="error">{error}</Notice>}
 
       {loading ? (
-        <div style={{ padding: '60px', textAlign: 'center', color: '#a0988c' }}>
-          Chargement de la méthode...
-        </div>
+        <LuxuryLoader size={70} minHeight="240px" />
       ) : (
         <>
           {/* TAB 1: STEPS */}

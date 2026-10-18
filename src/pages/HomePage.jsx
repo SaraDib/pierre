@@ -13,6 +13,7 @@ import {
 } from '../data/content';
 import { useCompany } from '../context/CompanyContext';
 import { getDevisSection, submitDevis, DEFAULT_DEVIS_SECTION } from '../api/devis';
+import LuxuryLoader from '../components/LuxuryLoader';
 
 export default function HomePage() {
   const { company } = useCompany();
@@ -499,7 +500,7 @@ export default function HomePage() {
         <section className="sec" id="savoir-faire" data-label="Savoir-faire">
           <div className="wrap">
             {savoirFaireStatus === 'loading' && (
-              <p className="lead" role="status">Chargement…</p>
+              <LuxuryLoader size={64} minHeight="160px" />
             )}
 
             {savoirFaireStatus === 'error' && (
@@ -568,7 +569,7 @@ export default function HomePage() {
         <section className="sec mat" id="materiaux" data-label="Matériaux">
           <div className="wrap">
             {materiauxStatus === 'loading' && (
-              <p className="lead" role="status">Chargement…</p>
+              <LuxuryLoader size={64} minHeight="160px" />
             )}
 
             {materiauxStatus === 'error' && (
@@ -822,9 +823,7 @@ export default function HomePage() {
                   </div>
                 ))
               ) : faqStatus === 'loading' ? (
-                <div style={{ padding: '24px 0', color: 'var(--muted)', fontSize: '14px' }}>
-                  Chargement des questions fréquentes...
-                </div>
+                <LuxuryLoader size={54} minHeight="120px" />
               ) : (
                 <div style={{ padding: '24px 0', color: 'var(--muted)', fontSize: '14px' }}>
                   Aucune question disponible pour le moment.

@@ -31,6 +31,7 @@ import {
   deleteFaqCategory,
   reorderFaqCategories
 } from '../api/faq';
+import LuxuryLoader from './LuxuryLoader';
 
 const cardStyle = {
   background: 'rgba(26, 24, 22, 0.85)',
@@ -713,9 +714,7 @@ export default function FaqAdmin({ token, onCountChange }) {
 
           {/* Question Cards List */}
           {loading ? (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#a0988c' }}>
-              Chargement des questions...
-            </div>
+            <LuxuryLoader size={70} minHeight="240px" />
           ) : filteredItems.length === 0 ? (
             <div
               style={{

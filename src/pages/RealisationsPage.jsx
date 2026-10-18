@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { MapPin } from 'lucide-react';
 import { WHATSAPP_PHONE } from '../data/content';
 import { getRealisationsContent } from '../api/realisations';
+import LuxuryLoader from '../components/LuxuryLoader';
 
 export default function RealisationsPage() {
   const [data, setData] = useState(null);
@@ -136,58 +137,7 @@ export default function RealisationsPage() {
       <section className="projects-sec">
         <div className="wrap">
           {status === 'loading' && (
-            <div className="projects-grid" id="grid">
-              {[1, 2, 3, 4, 5, 6].map((sk) => (
-                <div
-                  key={sk}
-                  className="card"
-                  style={{
-                    opacity: 0.6,
-                    pointerEvents: 'none',
-                    minHeight: '380px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between'
-                  }}
-                >
-                  <div
-                    style={{
-                      height: '220px',
-                      background: 'rgba(255, 255, 255, 0.04)',
-                      borderRadius: '8px 8px 0 0'
-                    }}
-                  />
-                  <div style={{ padding: '20px' }}>
-                    <div
-                      style={{
-                        width: '40%',
-                        height: '12px',
-                        background: 'rgba(255, 255, 255, 0.08)',
-                        borderRadius: '4px',
-                        marginBottom: '12px'
-                      }}
-                    />
-                    <div
-                      style={{
-                        width: '80%',
-                        height: '18px',
-                        background: 'rgba(255, 255, 255, 0.08)',
-                        borderRadius: '4px',
-                        marginBottom: '10px'
-                      }}
-                    />
-                    <div
-                      style={{
-                        width: '100%',
-                        height: '12px',
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        borderRadius: '4px'
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
+            <LuxuryLoader size={80} minHeight="380px" />
           )}
 
           {status === 'error' && (

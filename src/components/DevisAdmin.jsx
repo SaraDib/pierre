@@ -29,6 +29,7 @@ import {
   DEFAULT_DEVIS_SECTION
 } from '../api/devis';
 import { useCompany } from '../context/CompanyContext';
+import LuxuryLoader from './LuxuryLoader';
 
 export default function DevisAdmin({ token, onCountChange }) {
   const { company } = useCompany();
@@ -463,10 +464,7 @@ export default function DevisAdmin({ token, onCountChange }) {
 
           {/* Quotes List */}
           {loadingQuotes ? (
-            <div style={{ padding: '60px 20px', textAlign: 'center', color: '#c5a059' }}>
-              <RefreshCw size={28} style={{ animation: 'spin 1s linear infinite' }} />
-              <p style={{ marginTop: '12px', fontSize: '13px', color: '#a0988c' }}>Chargement des devis...</p>
-            </div>
+            <LuxuryLoader size={60} minHeight="200px" />
           ) : quotes.length === 0 ? (
             <div style={{
               background: 'rgba(26, 24, 22, 0.5)',

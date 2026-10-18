@@ -53,6 +53,7 @@ import {
   DEFAULT_COMPANY
 } from '../api/company';
 import { useCompany } from '../context/CompanyContext';
+import LuxuryLoader from './LuxuryLoader';
 
 export default function CompanyAdmin({ token }) {
   const { updateCompanyState } = useCompany();
@@ -181,14 +182,7 @@ export default function CompanyAdmin({ token }) {
   const currentDisplayLogo = logoPreview || formatCompanyMediaUrl(form.logo_url) || '/logo-gold.png';
 
   if (loading) {
-    return (
-      <div style={{ padding: '60px 20px', textAlign: 'center', color: '#c5a059' }}>
-        <RefreshCw size={32} style={{ animation: 'spin 1s linear infinite' }} />
-        <p style={{ marginTop: '16px', fontSize: '14px', color: '#a0988c' }}>
-          Chargement des informations de l'entreprise...
-        </p>
-      </div>
-    );
+    return <LuxuryLoader size={70} minHeight="300px" />;
   }
 
   return (

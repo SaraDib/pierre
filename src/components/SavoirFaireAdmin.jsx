@@ -9,6 +9,7 @@ import {
 } from '../api/savoirFaire';
 import { formatMediaUrl } from '../api/acceuil';
 import { getMateriauxAdmin } from '../api/materiaux';
+import LuxuryLoader from './LuxuryLoader';
 
 const card = {
   background: 'rgba(26, 24, 22, 0.85)',
@@ -325,7 +326,7 @@ export default function SavoirFaireAdmin({ token, onCountChange }) {
       {error && <Notice kind="error">{error}</Notice>}
 
       {loading ? (
-        <div style={{ color: '#a0988c' }}>Chargement…</div>
+        <LuxuryLoader size={70} minHeight="240px" />
       ) : (
         <>
           <form onSubmit={saveSection} style={{ ...card, marginBottom: '28px' }}>

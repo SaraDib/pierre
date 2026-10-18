@@ -30,6 +30,7 @@ import {
   deleteRealisationCategory,
   reorderRealisationCategories
 } from '../api/realisations';
+import LuxuryLoader from './LuxuryLoader';
 
 const cardStyle = {
   background: 'rgba(26, 24, 22, 0.85)',
@@ -664,9 +665,7 @@ export default function RealisationsAdmin({ token, onCountChange }) {
       {error && <Notice kind="error">{error}</Notice>}
 
       {loading ? (
-        <div style={{ padding: '60px', textAlign: 'center', color: '#a0988c' }}>
-          Chargement des réalisations...
-        </div>
+        <LuxuryLoader size={70} minHeight="240px" />
       ) : (
         <>
           {/* TAB 1: PROJECTS */}
