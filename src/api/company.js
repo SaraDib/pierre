@@ -1,8 +1,7 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+import { API_URL, BACKEND_URL } from './config';
 
 /**
- * Format media URL (ensures Laravel storage paths resolve to backend port 8000)
+ * Format media URL (ensures Laravel storage paths resolve to the backend host)
  */
 export function formatCompanyMediaUrl(url) {
   if (!url) return '';
@@ -27,7 +26,7 @@ export const DEFAULT_COMPANY = {
   phone: '+212 6 00 00 00 00',
   phone_secondary: '',
   whatsapp_number: '212600000000',
-  email: 'contact@sutravomar-stone.ma',
+  email: 'contact@sutravomar-pierre.ma',
   address: 'Atelier & Showroom, Maroc',
   city: 'Casablanca',
   country: 'Maroc',

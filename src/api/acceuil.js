@@ -1,8 +1,7 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+import { API_URL, BACKEND_URL } from './config';
 
 /**
- * Format media URL (ensures Laravel storage paths resolve to backend port 8000)
+ * Format media URL (ensures Laravel storage paths resolve to the backend host)
  */
 export function formatMediaUrl(url) {
   if (!url) return '';

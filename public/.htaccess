@@ -1,0 +1,49 @@
+# ===== React SPA - SUTRAVOMAR =====
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Ne pas toucher au backend (sous-domaine serv.) ni à la validation SSL
+  RewriteCond %{HTTP_HOST} ^serv\. [NC]
+  RewriteRule ^ - [L]
+  RewriteRule ^\.well-known/ - [L]
+
+  # Domaine canonique : www -> sutravomar-pierre.ma (évite le contenu dupliqué)
+  RewriteCond %{HTTP_HOST} ^www\.sutravomar-pierre\.ma$ [NC]
+  RewriteRule ^ https://sutravomar-pierre.ma%{REQUEST_URI} [L,R=301]
+
+  # Forcer HTTPS
+  RewriteCond %{HTTPS} off
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Servir les fichiers/dossiers existants directement
+  RewriteRule ^(index|spa)\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Pages pré-rendues pour le SEO (/realisations -> realisations.html)
+  RewriteCond %{DOCUMENT_ROOT}/$1.html -f
+  RewriteRule ^([a-z0-9-]+)/?$ $1.html [L]
+
+  # Toutes les autres routes (admin, etc.) -> coquille React Router
+  RewriteRule ^ spa.html [L]
+</IfModule>
+
+# Ne pas mettre index.html en cache (nouveaux déploiements visibles immédiatement)
+<IfModule mod_headers.c>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+  </FilesMatch>
+  <FilesMatch "\.(js|css|woff2?|ttf|svg|png|jpe?g|webp|gif|ico)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>
+
+# Compression
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
+</IfModule>
+
+Options -Indexes
+# ===== FIN React SPA =====

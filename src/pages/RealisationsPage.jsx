@@ -4,6 +4,16 @@ import { MapPin } from 'lucide-react';
 import { WHATSAPP_PHONE } from '../data/content';
 import { getRealisationsContent } from '../api/realisations';
 import LuxuryLoader from '../components/LuxuryLoader';
+import { useSeo, setJsonLd, SITE_URL, SITE_NAME } from '../seo/useSeo';
+import { BACKEND_URL } from '../api/config';
+
+/** URL absolue d'une image (chemins Laravel /storage -> backend) */
+function absUrl(src) {
+  if (!src) return null;
+  if (/^https?:\/\//.test(src)) return src;
+  if (src.startsWith('/storage/')) return `${BACKEND_URL}${src}`;
+  return `${SITE_URL}${src.startsWith('/') ? '' : '/'}${src}`;
+}
 
 export default function RealisationsPage() {
   const [data, setData] = useState(null);
@@ -12,13 +22,16 @@ export default function RealisationsPage() {
   const [activeModalProject, setActiveModalProject] = useState(null);
   const [activeModalImg, setActiveModalImg] = useState(null);
 
-  // Scroll to top on mount & SEO title
+  useSeo({
+    title: 'Nos Réalisations | Marbre, Granit & Pierre de Taza au Maroc – SUTRAVOMAR',
+    description:
+      "Galerie de nos chantiers au Maroc : façades en pierre de Taza, escaliers en marbre, cuisines en granit, salles de bain et piscines en travertin. Découvrez nos réalisations sur mesure.",
+    path: '/realisations',
+  });
+
+  // Scroll to top on mount
   useEffect(() => {
-    document.title = 'Nos Réalisations de Prestige | SUTRAVOMAR STONE LUXE Maroc';
     window.scrollTo({ top: 0, behavior: 'instant' });
-    return () => {
-      document.title = 'SUTRAVOMAR STONE LUXE | Marbre, Granit & Pierre Naturelle au Maroc';
-    };
   }, []);
 
   const loadData = () => {
@@ -69,6 +82,50 @@ export default function RealisationsPage() {
   const section = data?.section || {};
   const categories = data?.categories || [];
   const items = data?.items || [];
+
+  // Données structurées : fil d'Ariane + galerie d'images
+  useEffect(() => {
+    setJsonLd('ld-breadcrumb', {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Accueil', item: `${SITE_URL}/` },
+        { '@type': 'ListItem', position: 2, name: 'Réalisations', item: `${SITE_URL}/realisations` },
+      ],
+    });
+    return () => setJsonLd('ld-breadcrumb', null);
+  }, []);
+
+  useEffect(() => {
+    const images = (data?.items || [])
+      .map((p) => {
+        const url = absUrl(p.cover_image || p.img);
+        if (!url) return null;
+        return {
+          '@type': 'ImageObject',
+          contentUrl: url,
+          name: p.title,
+          description: p.short_description || p.shortDesc || p.title,
+          ...(p.location || p.loc ? { contentLocation: { '@type': 'Place', name: p.location || p.loc } } : {}),
+          creator: { '@type': 'Organization', name: SITE_NAME },
+        };
+      })
+      .filter(Boolean);
+
+    setJsonLd(
+      'ld-gallery',
+      images.length
+        ? {
+            '@context': 'https://schema.org',
+            '@type': 'ImageGallery',
+            name: 'Réalisations SUTRAVOMAR STONE LUXE',
+            url: `${SITE_URL}/realisations`,
+            image: images,
+          }
+        : null
+    );
+    return () => setJsonLd('ld-gallery', null);
+  }, [data]);
 
   const filteredProjects =
     selectedFilter === 'all'
@@ -141,7 +198,7 @@ export default function RealisationsPage() {
           )}
 
           {status === 'error' && (
-            <div style={{ textAlign: 'center', padding: '60px 20px', color: '#f7f3ea' }}>
+            <div role="alert" style={{ textAlign: 'center', padding: '60px 20px', color: '#f7f3ea' }}>
               <p style={{ color: '#e07a5f', fontSize: '16px', marginBottom: '16px' }}>
                 Une erreur est survenue lors du chargement des réalisations.
               </p>

@@ -7,6 +7,7 @@ import HomePage from './pages/HomePage';
 import RealisationsPage from './pages/RealisationsPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
+import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 import { CompanyProvider } from './context/CompanyContext';
@@ -58,7 +59,7 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
-        <Route path="*" element={<HomePage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
       {!isAdminRoute && <Footer />}
       {!isAdminRoute && <FloatingButtons />}

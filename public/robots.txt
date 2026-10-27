@@ -6,4 +6,4 @@ Disallow: /admin/
 Disallow: /admin/*
 
 # Sitemap
-Sitemap: https://sutravomar-stone.ma/sitemap.xml
+Sitemap: https://sutravomar-pierre.ma/sitemap.xml

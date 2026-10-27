@@ -54,8 +54,10 @@ import { getMateriauxAdmin } from '../api/materiaux';
 import { getRealisationsAdmin } from '../api/realisations';
 import { getMethodeAdmin } from '../api/methode';
 import { getDevisStats } from '../api/devis';
+import { useSeo } from '../seo/useSeo';
 
 export default function AdminDashboardPage() {
+  useSeo({ title: 'Administration | SUTRAVOMAR', noindex: true });
   const { user, token, logout } = useAuth();
   const { company } = useCompany();
   const navigate = useNavigate();
@@ -99,6 +101,7 @@ export default function AdminDashboardPage() {
   const [saveMessage, setSaveMessage] = useState(null);
   const [saveError, setSaveError] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
+  const [fileInputKey, setFileInputKey] = useState(0); // force le reset des <input type="file">
   const [archImageFile, setArchImageFile] = useState(null);
 
   const sidebarItems = [
@@ -278,6 +281,7 @@ export default function AdminDashboardPage() {
         }
         setVideoFile(null);
         setArchImageFile(null);
+        setFileInputKey((k) => k + 1);
       }
 
       setSaveMessage('✓ Modifications enregistrées avec succès !');
@@ -988,6 +992,7 @@ export default function AdminDashboardPage() {
                         Ou importer une nouvelle vidéo depuis votre ordinateur :
                       </div>
                       <input
+                        key={`video-${fileInputKey}`}
                         type="file"
                         accept="video/mp4,video/webm"
                         onChange={(e) => setVideoFile(e.target.files[0] || null)}

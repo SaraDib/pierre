@@ -768,7 +768,7 @@ export default function CompanyAdmin({ token }) {
                     required
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    placeholder="contact@sutravomar-stone.ma"
+                    placeholder="contact@sutravomar-pierre.ma"
                     style={{
                       width: '100%',
                       boxSizing: 'border-box',

@@ -14,9 +14,11 @@ import {
 import { useCompany } from '../context/CompanyContext';
 import { getDevisSection, submitDevis, DEFAULT_DEVIS_SECTION } from '../api/devis';
 import LuxuryLoader from '../components/LuxuryLoader';
+import { useSeo, setJsonLd } from '../seo/useSeo';
 
 export default function HomePage() {
   const { company } = useCompany();
+  useSeo({ path: '/' });
   // Contenu d'accueil dynamique (depuis la table acceuil)
   const [homeContent, setHomeContent] = useState({
     eyebrow: 'Marbre · Granit · Pierre naturelle — Maroc',
@@ -145,6 +147,25 @@ export default function HomePage() {
       cancelled = true;
     };
   }, []);
+
+  // Données structurées FAQPage générées depuis la FAQ réelle (BDD)
+  useEffect(() => {
+    const entities = (faq?.items || [])
+      .map((item) => ({ q: item.question || item.q, a: item.answer || item.a }))
+      .filter((it) => it.q && it.a)
+      .map((it) => ({
+        '@type': 'Question',
+        name: String(it.q).trim(),
+        acceptedAnswer: { '@type': 'Answer', text: String(it.a).trim() },
+      }));
+    setJsonLd(
+      'ld-faq',
+      entities.length
+        ? { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: entities }
+        : null
+    );
+    return () => setJsonLd('ld-faq', null);
+  }, [faq]);
 
   // Textures de toutes les pierres (y compris celles masquées du sélecteur), indexées par slug.
   // Utilisées par la carte d'accueil et les couches Savoir-faire.
@@ -397,7 +418,8 @@ export default function HomePage() {
             muted
             loop
             playsInline
-            preload="auto"
+            poster="/video_preview.jpg"
+            preload="metadata"
             aria-hidden="true"
             tabIndex="-1"
             onCanPlay={() => setVideoReady(true)}

@@ -4,8 +4,10 @@ import { useAuth } from '../context/AuthContext';
 import { useCompany } from '../context/CompanyContext';
 import { formatCompanyMediaUrl } from '../api/company';
 import { Lock, Mail, Eye, EyeOff, ShieldCheck, ArrowLeft, Loader2 } from 'lucide-react';
+import { useSeo } from '../seo/useSeo';
 
 export default function AdminLoginPage() {
+  useSeo({ title: 'Connexion Administration | SUTRAVOMAR', noindex: true });
   const { company } = useCompany();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

@@ -2,50 +2,45 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
-    <loc>https://sutravomar-stone.ma/</loc>
-    <lastmod>2026-10-18</lastmod>
+    <loc>https://sutravomar-pierre.ma/</loc>
+    <lastmod>2026-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image>
-      <image:loc>https://sutravomar-stone.ma/logo-gold.png</image:loc>
+      <image:loc>https://sutravomar-pierre.ma/og-cover.jpg</image:loc>
       <image:title>SUTRAVOMAR STONE LUXE - Marbre, Granit et Pierre Naturelle au Maroc</image:title>
       <image:caption>Façonnage, taille et pose de marbre, travertin et pierre naturelle partout au Maroc</image:caption>
     </image:image>
   </url>
   <url>
-    <loc>https://sutravomar-stone.ma/realisations</loc>
-    <lastmod>2026-10-18</lastmod>
+    <loc>https://sutravomar-pierre.ma/realisations</loc>
+    <lastmod>2026-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://sutravomar-stone.ma/#materiaux</loc>
-    <lastmod>2026-10-18</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://sutravomar-stone.ma/#savoir-faire</loc>
-    <lastmod>2026-10-18</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://sutravomar-stone.ma/#methode</loc>
-    <lastmod>2026-10-18</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://sutravomar-stone.ma/#faq</loc>
-    <lastmod>2026-10-18</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://sutravomar-stone.ma/#devis</loc>
-    <lastmod>2026-10-18</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://sutravomar-pierre.ma/images/realisation-facade-taza.jpg</image:loc>
+      <image:title>Façade en pierre de Taza - Villa de prestige au Maroc</image:title>
+      <image:caption>Habillage de façade en pierre de Taza ciselée par SUTRAVOMAR</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://sutravomar-pierre.ma/images/realisation-escalier-marbre.jpg</image:loc>
+      <image:title>Escalier monumental en marbre noble</image:title>
+      <image:caption>Escalier hélicoïdal en marbre blanc veiné avec nez de marche poli</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://sutravomar-pierre.ma/images/realisation-cuisine-granit.jpg</image:loc>
+      <image:title>Plan de travail en granit noir absolu</image:title>
+      <image:caption>Cuisine moderne avec îlot central en granit noir sur mesure</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://sutravomar-pierre.ma/images/realisation-piscine-travertin.jpg</image:loc>
+      <image:title>Plage de piscine et margelles en travertin</image:title>
+      <image:caption>Terrasse extérieure et contour de piscine en travertin vieilli antidérapant</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://sutravomar-pierre.ma/images/realisation-salle-de-bain.jpg</image:loc>
+      <image:title>Salle de bain en ardoise et marbre</image:title>
+      <image:caption>Vasque monolithique sculptée et habillage mural en pierre naturelle</image:caption>
+    </image:image>
   </url>
 </urlset>
