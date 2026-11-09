@@ -34,7 +34,9 @@ export default function Header() {
     };
   }, [menuOpen]);
 
+  const closeMenu = () => setMenuOpen(false);
   const toggleMenu = () => setMenuOpen(!menuOpen);
+
   const handleNavClick = (anchorId) => {
     closeMenu();
     if (location.pathname === '/') {
@@ -69,46 +71,56 @@ export default function Header() {
               </Link>
             </li>
             <li>
-              <Link to="/#savoir-faire" onClick={() => handleNavClick('#savoir-faire')}>
-                Savoir-faire
-              </Link>
-            </li>
-            <li>
               <Link to="/#materiaux" onClick={() => handleNavClick('#materiaux')}>
                 Matériaux
               </Link>
             </li>
             <li>
-              <Link to="/#realisations" onClick={() => handleNavClick('#realisations')}>
-                Réalisations
+              <Link to="/realisations" onClick={closeMenu}>
+                Projets
               </Link>
             </li>
             <li>
-              <Link to="/#methode" onClick={() => handleNavClick('#methode')}>
-                Méthode
+              <Link to="/#savoir-faire" onClick={() => handleNavClick('#savoir-faire')}>
+                À propos
               </Link>
             </li>
             <li>
-              <Link to="/#faq" onClick={() => handleNavClick('#faq')}>
-                FAQ
+              <Link to="/#devis" onClick={() => handleNavClick('#devis')}>
+                Contact
               </Link>
             </li>
           </ul>
         </nav>
 
-        <Link to="/#devis" className="btn btn-ochre" onClick={() => handleNavClick('#devis')}>
+        {/* Hidden CTA button (kept in DOM but hidden via CSS) */}
+        <Link to="/#devis" className="btn btn-ochre" onClick={() => handleNavClick('#devis')} style={{ display: 'none' }}>
           Devis gratuit <span className="ar">→</span>
         </Link>
 
-        <button
-          className={`burger ${menuOpen ? 'o' : ''}`}
-          id="bg"
-          aria-label="Menu"
-          onClick={toggleMenu}
-        >
-          <i />
-          <i />
-        </button>
+        {/* Nav icons: search + burger */}
+        <div className="nav-icons">
+          <button
+            className="nav-icon-btn"
+            aria-label="Rechercher"
+            onClick={() => handleNavClick('#materiaux')}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="7" />
+              <line x1="16.5" y1="16.5" x2="22" y2="22" />
+            </svg>
+          </button>
+
+          <button
+            className={`burger ${menuOpen ? 'o' : ''}`}
+            id="bg"
+            aria-label="Menu"
+            onClick={toggleMenu}
+          >
+            <i />
+            <i />
+          </button>
+        </div>
       </div>
     </header>
   );

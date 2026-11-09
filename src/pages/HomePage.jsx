@@ -21,22 +21,23 @@ export default function HomePage() {
   useSeo({ path: '/' });
   // Contenu d'accueil dynamique (depuis la table acceuil)
   const [homeContent, setHomeContent] = useState({
-    eyebrow: 'Marbre · Granit · Pierre naturelle — Maroc',
+    eyebrow: 'SUTRAVOMAR STONE LUXE',
     title_line1: 'La pierre,',
-    title_line2: 'taillée',
-    title_line3: 'pour durer.',
-    description: 'SUTRAVOMAR STONE LUXE sélectionne, façonne et pose des pierres nobles pour vos façades, escaliers, cuisines, piscines et espaces extérieurs. Du bloc brut à la finition parfaite.',
-    video_url: '/videos/logo-reveal.mp4',
+    title_line2: 'un art de vivre.',
+    title_line3: '',
+    description: "Des pierres naturelles d'exception pour sublimer vos espaces. Élégance, durabilité et savoir-faire au service de vos projets.",
+    hero_image: '/images/hero-luxury-living.jpg',
+    video_url: null,
     arch_badge: 'Collection',
     arch_title: 'Beige de Taza, poli',
     arch_material: 'travertin',
     arch_image: null,
-    stat1_number: '30+',
-    stat1_label: 'Variétés de pierres',
+    stat1_number: '+500',
+    stat1_label: 'Projets réalisés',
     stat2_number: '100%',
-    stat2_label: 'Sur mesure',
-    stat3_number: 'Maroc',
-    stat3_label: 'Livraison & pose',
+    stat2_label: 'Clients satisfaits',
+    stat3_number: '15 ans',
+    stat3_label: "d'expérience",
     marquee_words: MARQUEE_WORDS
   });
 
@@ -183,6 +184,10 @@ export default function HomePage() {
   const [slabFading, setSlabFading] = useState(false);
   const [slabRevealed, setSlabRevealed] = useState(false);
 
+  // Mat cards scroll offset
+  const matCardsRef = useRef(null);
+  const realRowRef = useRef(null);
+
   // Révéler les éléments .rv rendus après le chargement des contenus Savoir-faire / Matériaux / Réalisations / Méthode / FAQ
   useEffect(() => {
     if (
@@ -315,9 +320,9 @@ export default function HomePage() {
     );
     sections.forEach((s) => so.observe(s));
 
-    // Compteurs de stats
-    const statsElem = document.querySelector('.stats');
-    if (statsElem) {
+    // Compteurs de stats dans la section savoir-faire
+    const sfStats = document.querySelector('.sf-stats');
+    if (sfStats) {
       const co = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
@@ -331,7 +336,7 @@ export default function HomePage() {
                 const progress = Math.min((time - start) / duration, 1);
                 const eased = 1 - Math.pow(1 - progress, 3);
                 setCounts({
-                  varieties: Math.round(30 * eased),
+                  varieties: Math.round(500 * eased),
                   custom: Math.round(100 * eased)
                 });
                 if (progress < 1) requestAnimationFrame(animate);
@@ -342,7 +347,7 @@ export default function HomePage() {
         },
         { threshold: 0.5 }
       );
-      co.observe(statsElem);
+      co.observe(sfStats);
     }
 
     return () => {
@@ -397,6 +402,20 @@ export default function HomePage() {
   const activeFinish = currentMat?.finishes?.[currentFinIndex] || currentMat?.finishes?.[0] || '';
   const isPoli = activeFinish === 'Poli';
 
+  // Scroll mat cards
+  const scrollMatCards = (dir) => {
+    if (matCardsRef.current) {
+      matCardsRef.current.scrollBy({ left: dir * 220, behavior: 'smooth' });
+    }
+  };
+
+  // Scroll realisations cards
+  const scrollRealRow = (dir) => {
+    if (realRowRef.current) {
+      realRowRef.current.scrollBy({ left: dir * 320, behavior: 'smooth' });
+    }
+  };
+
   return (
     <>
       {/* Rail latéral minéral */}
@@ -408,101 +427,113 @@ export default function HomePage() {
       <main>
         {/* ===== HERO SECTION ===== */}
         <section className="hero" id="accueil" data-label="Accueil">
-          <video
-            key={formatMediaUrl(homeContent.video_url)}
-            ref={videoRef}
-            className={`hero-video ${videoReady ? 'ready' : ''}`}
-            id="heroVideo"
-            src={formatMediaUrl(homeContent.video_url) || "/videos/logo-reveal.mp4"}
-            autoPlay
-            muted
-            loop
-            playsInline
-            poster="/video_preview.jpg"
-            preload="metadata"
-            aria-hidden="true"
-            tabIndex="-1"
-            onCanPlay={() => setVideoReady(true)}
-            onLoadedData={() => setVideoReady(true)}
-            onPlay={() => setVideoReady(true)}
-          />
-
-          <svg className="strata-lines" viewBox="0 0 1440 900" preserveAspectRatio="none" aria-hidden="true">
-            <g fill="none" stroke="#efe8db" strokeWidth=".6">
-              <path d="M0 220 C300 180 500 280 800 230 S1250 160 1440 210" />
-              <path d="M0 330 C260 300 560 390 820 340 S1260 280 1440 320" />
-              <path d="M0 450 C300 420 520 510 860 460 S1240 400 1440 440" />
-              <path d="M0 580 C280 550 560 640 840 590 S1250 530 1440 570" />
-              <path d="M0 710 C300 680 540 770 860 720 S1240 660 1440 700" />
-            </g>
-          </svg>
+          {/* Image de fond ultra-luxe (salon contemporain avec cheminée et marbre) */}
+          <div className="hero-bg-wrap">
+            <img
+              src={formatMediaUrl(homeContent.hero_image) || "/images/hero-luxury-living.jpg"}
+              alt="SUTRAVOMAR STONE LUXE — Marbre et Pierre d'exception"
+              className="hero-bg-img"
+              loading="eager"
+            />
+            <div className="hero-overlay" />
+          </div>
 
           <div className="wrap hero-grid">
-            <div>
-              <div className="eyebrow rv">{homeContent.eyebrow}</div>
-              <h1 className="rv d1" style={{ marginTop: '28px' }}>
-                <span>{homeContent.title_line1}</span>
-                <span className="l2"><em>{homeContent.title_line2}</em></span>
-                <span>{homeContent.title_line3}</span>
+            <div className="hero-content">
+              {/* Badge supérieur avec étincelle */}
+              <div className="hero-badge rv">
+                <span className="hero-badge-spark">✦</span>
+                <span className="hero-badge-text">
+                  {homeContent.eyebrow || 'SUTRAVOMAR STONE LUXE'}
+                </span>
+              </div>
+
+              {/* Titre principal */}
+              <h1 className="hero-title rv d1">
+                <span className="hero-title-l1">{homeContent.title_line1 || 'La pierre,'}</span>
+                <span className="hero-title-em">
+                  <em>{homeContent.title_line2 || 'un art de vivre.'}</em>
+                </span>
+                {homeContent.title_line3 && (
+                  <span className="hero-title-l3">{homeContent.title_line3}</span>
+                )}
               </h1>
-              <p className="lead rv d2">
-                {homeContent.description}
+
+              {/* Description */}
+              <p className="hero-desc rv d2">
+                {homeContent.description || "Des pierres naturelles d'exception pour sublimer vos espaces. Élégance, durabilité et savoir-faire au service de vos projets."}
               </p>
 
+              {/* Bouton CTA Pilule doré */}
               <div className="hero-actions rv d3">
-                <Link to="/realisations" className="btn btn-ochre">
-                  Voir nos réalisations <span className="ar">→</span>
+                <Link to="/realisations" className="hero-btn-pill">
+                  Découvrir notre univers <span className="ar">→</span>
                 </Link>
-                <a href="#devis" className="btn btn-line">
-                  Demander un devis
-                </a>
               </div>
 
-              <div className="stats rv d3">
-                <div>
-                  <b>{counts.varieties ? `${counts.varieties}+` : (homeContent.stat1_number || '30+')}</b>
-                  <small>{homeContent.stat1_label || 'Variétés de pierres'}</small>
-                </div>
-                <div>
-                  <b>{counts.custom ? `${counts.custom}%` : (homeContent.stat2_number || '100%')}</b>
-                  <small>{homeContent.stat2_label || 'Sur mesure'}</small>
-                </div>
-                <div>
-                  <b>{homeContent.stat3_number || 'Maroc'}</b>
-                  <small>{homeContent.stat3_label || 'Livraison & pose'}</small>
-                </div>
-              </div>
-            </div>
-
-            <div className="arch-wrap rv d2">
-              <div className="arch-outline" />
-              <div className="arch">
-                {homeContent.arch_image ? (
-                  <img
-                    src={formatMediaUrl(homeContent.arch_image)}
-                    alt={homeContent.arch_title}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }}
-                  />
-                ) : (
-                  stoneBySlug[homeContent.arch_material || 'travertin'] && (
-                    <StoneTexture
-                      material={stoneBySlug[homeContent.arch_material || 'travertin']}
-                      className="tex"
-                      style={{ position: 'absolute', inset: 0 }}
-                    />
-                  )
-                )}
-                <div className="sheen" />
-              </div>
-              <div className="tag">
-                <small>{homeContent.arch_badge || 'Collection'}</small>
-                <b>{homeContent.arch_title || 'Beige de Taza, poli'}</b>
+              {/* Localisation */}
+              <div className="hero-location rv d3">
+                <svg className="hero-pin-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                </svg>
+                <span>{company.city || 'Taza, Maroc'}</span>
               </div>
             </div>
           </div>
 
-          <div className="scroll">Défiler</div>
+          {/* Indicateur Scroll Découvrir en bas à droite */}
+          <a href="#features" className="hero-scroll-indicator" aria-label="Défiler pour découvrir">
+            <div className="hero-scroll-label">
+              <span>SCROLL</span>
+              <span>DÉCOUVRIR</span>
+            </div>
+            <div className="hero-mouse-pill">
+              <span className="hero-mouse-wheel" />
+            </div>
+          </a>
         </section>
+
+        {/* ===== FEATURES BAR ===== */}
+        <div className="features-bar" id="features">
+          <div className="wrap features-grid">
+            <div className="feature-item">
+              <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+              <div>
+                <b>Pierres naturelles</b>
+                <small>Qualité supérieure garantie</small>
+              </div>
+            </div>
+            <div className="feature-item">
+              <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+              <div>
+                <b>Savoir-faire</b>
+                <small>Une équipe d'experts à votre service</small>
+              </div>
+            </div>
+            <div className="feature-item">
+              <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+              <div>
+                <b>Livraison &amp; Pose</b>
+                <small>Partout au Maroc et à l'international</small>
+              </div>
+            </div>
+            <div className="feature-item">
+              <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+              </svg>
+              <div>
+                <b>Engagement durable</b>
+                <small>Respect de la nature et des générations futures</small>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* ===== MARQUEE ===== */}
         <div className="marquee" aria-hidden="true">
@@ -518,8 +549,8 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* ===== SAVOIR-FAIRE ===== */}
-        <section className="sec" id="savoir-faire" data-label="Savoir-faire">
+        {/* ===== SAVOIR-FAIRE — "Pourquoi nous choisir" ===== */}
+        <section className="sec sec-why" id="savoir-faire" data-label="Pourquoi nous choisir">
           <div className="wrap">
             {savoirFaireStatus === 'loading' && (
               <LuxuryLoader size={64} minHeight="160px" />
@@ -531,229 +562,328 @@ export default function HomePage() {
               </p>
             )}
 
-            {savoirFaireStatus === 'ready' && savoirFaire && (
-              <>
-                <div className="sec-head">
-                  <div>
-                    {savoirFaire.section.eyebrow && (
-                      <div className="eyebrow rv">{savoirFaire.section.eyebrow}</div>
-                    )}
-                    <h2 className="rv d1">
-                      {savoirFaire.section.title}{' '}
-                      {savoirFaire.section.title_em && <em>{savoirFaire.section.title_em}</em>}
-                    </h2>
+            {savoirFaireStatus === 'ready' && (
+              <div className="why-grid">
+                {/* COLONNE 1 : TEXTE & STATS */}
+                <div className="why-text-col">
+                  <div className="why-eyebrow rv">
+                    <span className="why-eyebrow-line" />
+                    <span>POURQUOI NOUS CHOISIR ?</span>
                   </div>
-                  {savoirFaire.section.description && (
-                    <p className="rv d2">{savoirFaire.section.description}</p>
-                  )}
-                </div>
 
-                {savoirFaire.items.length === 0 ? (
-                  <p className="lead">Aucune expertise à afficher pour le moment.</p>
-                ) : (
-                  <div className="strata">
-                    {savoirFaire.items.map((item, idx) => {
-                      const mat = stoneBySlug[item.mat_key];
-                      return (
-                        <div key={item.id} className="layer rv">
-                          <div className="bg">
-                            {item.image ? (
-                              <img
-                                src={formatMediaUrl(item.image)}
-                                alt={item.title}
-                                style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }}
-                              />
-                            ) : (
-                              mat && (
-                                <StoneTexture
-                                  material={mat}
-                                  className="tex"
-                                  style={{ position: 'absolute', inset: 0 }}
-                                />
-                              )
-                            )}
-                          </div>
-                          <span className="n">{String(idx + 1).padStart(2, '0')}</span>
-                          <h3>{item.title}</h3>
-                          <p>{item.description}</p>
-                          <span className="go">→</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        </section>
+                  <h2 className="why-title rv d1">
+                    L'excellence<br />
+                    au cœur de chaque projet.
+                  </h2>
 
-        {/* ===== MATÉRIAUX ===== */}
-        <section className="sec mat" id="materiaux" data-label="Matériaux">
-          <div className="wrap">
-            {materiauxStatus === 'loading' && (
-              <LuxuryLoader size={64} minHeight="160px" />
-            )}
+                  <p className="why-desc rv d2">
+                    {savoirFaire?.section?.description || "Chez SUTRAVOMAR, nous ne vendons pas seulement des pierres, nous créons des espaces intemporels. Chaque projet est une rencontre entre la nature, l'architecture et votre vision."}
+                  </p>
 
-            {materiauxStatus === 'error' && (
-              <p className="lead" role="alert">
-                Impossible de charger cette section pour le moment. Veuillez réessayer plus tard.
-              </p>
-            )}
-
-            {materiauxStatus === 'ready' && materiaux && (
-              <>
-                <div className="sec-head">
-                  <div>
-                    {materiaux.section?.eyebrow && (
-                      <div className="eyebrow rv">{materiaux.section.eyebrow}</div>
-                    )}
-                    <h2 className="rv d1">
-                      {materiaux.section?.title}{' '}
-                      {materiaux.section?.title_em && <em>{materiaux.section.title_em}</em>}
-                    </h2>
-                  </div>
-                  {materiaux.section?.description && (
-                    <p className="rv d2">{materiaux.section.description}</p>
-                  )}
-                </div>
-
-                {matItems.length === 0 ? (
-                  <p className="lead">Aucun matériau disponible pour le moment.</p>
-                ) : (
-                  <div className="mat-grid">
-                    <div className="rv">
-                      <div className="tabs" id="tabs">
-                        {matItems.map((mat, idx) => (
-                          <button
-                            key={mat.id || mat.slug}
-                            className={`tab ${idx === safeMatIndex ? 'on' : ''}`}
-                            onClick={() => handleSelectMaterial(idx)}
-                          >
-                            {mat.name}
-                            {mat.category_name && <small>{mat.category_name}</small>}
-                          </button>
-                        ))}
-                      </div>
-
-                      {currentMat && (
-                        <p className="info" id="info">{currentMat.description}</p>
-                      )}
-
-                      {currentMat?.finishes && currentMat.finishes.length > 0 && (
-                        <div className="chips" id="chips">
-                          {currentMat.finishes.map((fin, fIdx) => (
-                            <button
-                              key={fin}
-                              className={`chip ${fIdx === currentFinIndex ? 'on' : ''}`}
-                              onClick={() => handleSelectFinish(fIdx)}
-                            >
-                              {fin}
-                            </button>
-                          ))}
-                        </div>
-                      )}
+                  {/* 3 Chiffres clés */}
+                  <div className="why-stats rv d2">
+                    <div className="why-stat-item">
+                      <b className="why-stat-num">{counts.varieties ? `+${counts.varieties}` : (homeContent.stat1_number || '+500')}</b>
+                      <span className="why-stat-lbl">{homeContent.stat1_label || 'Projets réalisés'}</span>
                     </div>
-
-                    {currentMat && (
-                      <div
-                        className={`slab rv d1 ${slabRevealed ? 'in' : ''} ${isPoli ? 'poli' : ''}`}
-                        id="slab"
-                        data-in={slabRevealed ? 'true' : undefined}
-                      >
-                        <div
-                          id="slabTex"
-                          style={{
-                            position: 'absolute',
-                            inset: 0,
-                            opacity: slabFading ? 0 : 1,
-                            transition: 'opacity .22s ease'
-                          }}
-                        >
-                          {currentMat.image ? (
-                            <img
-                              src={formatMediaUrl(currentMat.image)}
-                              alt={currentMat.name}
-                              style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }}
-                            />
-                          ) : currentStone ? (
-                            <StoneTexture
-                              key={`${currentMat.slug}_${currentFinIndex}`}
-                              material={currentStone}
-                              seedOffset={currentFinIndex * 2}
-                            />
-                          ) : null}
-                        </div>
-                        <div className="gloss" />
-                        <div className="cap">
-                          <b id="slabName">{currentMat.name}</b>
-                          {activeFinish && <small id="slabFin">Finition · {activeFinish}</small>}
-                        </div>
-                      </div>
-                    )}
+                    <div className="why-stat-divider" />
+                    <div className="why-stat-item">
+                      <b className="why-stat-num">{counts.custom ? `${counts.custom}%` : (homeContent.stat2_number || '100%')}</b>
+                      <span className="why-stat-lbl">{homeContent.stat2_label || 'Clients satisfaits'}</span>
+                    </div>
+                    <div className="why-stat-divider" />
+                    <div className="why-stat-item">
+                      <b className="why-stat-num">{homeContent.stat3_number || '15 ans'}</b>
+                      <span className="why-stat-lbl">{homeContent.stat3_label || "D'expérience"}</span>
+                    </div>
                   </div>
-                )}
-              </>
-            )}
-          </div>
-        </section>
 
-        {/* ===== RÉALISATIONS (BENTO) ===== */}
-        <section className="sec" id="realisations" data-label="Réalisations">
-          <div className="wrap">
-            <div className="sec-head">
-              <div>
-                <div className="eyebrow rv">
-                  {realisations?.section?.bento_eyebrow || 'Réalisations'}
+                  <div className="why-btn-wrap rv d3">
+                    <a href="#materiaux" className="why-btn">
+                      <span>En savoir plus</span>
+                      <span className="why-btn-ar">→</span>
+                    </a>
+                  </div>
                 </div>
-                <h2 className="rv d1">
-                  {realisations?.section?.bento_title || 'Des projets qui'}{' '}
-                  <em>{realisations?.section?.bento_title_em || 'portent notre signature.'}</em>
-                </h2>
-              </div>
-              <p className="rv d2">
-                {realisations?.section?.bento_description ||
-                  "Découvrez une sélection de nos chantiers d'exception réalisés sur mesure partout au Maroc."}
-              </p>
-            </div>
 
-            <div className="bento">
-              {((realisations?.items && realisations.items.length > 0)
-                ? realisations.items.slice(0, 5)
-                : [
-                    { id: 1, grid_class: 't1', cover_image: '/images/realisation-facade-taza.jpg', subtitle: 'Façade · Pierre de Taza', short_title: 'Villa en pierre de Taza éclatée' },
-                    { id: 2, grid_class: 't2', cover_image: '/images/realisation-escalier-marbre.jpg', subtitle: 'Escalier · Marbre noble', short_title: 'Marbre veiné, nez de marche poli' },
-                    { id: 3, grid_class: 't3', cover_image: '/images/realisation-cuisine-granit.jpg', subtitle: 'Cuisine · Granit absolu', short_title: 'Plan de travail en granit noir' },
-                    { id: 4, grid_class: 't4', cover_image: '/images/realisation-salle-de-bain.jpg', subtitle: 'Salle de bain · Ardoise', short_title: 'Ardoise & vasque monolithique sculptée' },
-                    { id: 5, grid_class: 't5', cover_image: '/images/realisation-piscine-travertin.jpg', subtitle: 'Extérieur · Travertin', short_title: 'Terrasse et plage de piscine antidérapantes' }
-                  ]
-              ).map((proj, idx) => {
-                const gClass = proj.grid_class || proj.gridClass || `t${idx + 1}`;
-                const delayClass = idx === 1 || idx === 4 ? 'd1' : idx === 2 ? 'd2' : '';
-                const cover = proj.cover_image || proj.img;
-                const subtitle = proj.subtitle || `${proj.category_name || 'Projet'} · ${proj.stone || ''}`;
-                const shortTitle = proj.short_title || proj.shortTitle || proj.title;
-
-                return (
-                  <article key={proj.id} className={`tile ${gClass} rv ${delayClass}`}>
+                {/* COLONNE 2 : IMAGE ESCALIER MARBRE AVEC CITATION */}
+                <div className="why-img-col rv d1">
+                  <div className="why-img-card">
                     <img
-                      className="tex"
-                      src={cover}
-                      alt={proj.title || shortTitle}
+                      src="/images/pourquoi-nous-choisir-escalier.jpg"
+                      alt="Escalier monumental en marbre avec éclairage LED sous chaque marche"
+                      className="why-img"
                       loading="lazy"
                     />
-                    <div className="t">
-                      <small>{subtitle}</small>
-                      <b>{shortTitle}</b>
+                    <div className="why-quote-overlay">
+                      <p className="why-quote-text">
+                        La pierre<br />
+                        révèle le caractère<br />
+                        de vos espaces
+                      </p>
                     </div>
-                  </article>
-                );
-              })}
+                  </div>
+                </div>
+
+                {/* COLONNE 3 : 4 CATÉGORIES AVEC ICÔNES CIRCULAIRES */}
+                <div className="why-categories-col rv d2">
+                  <div className="why-cat-row">
+                    <div className="why-cat-icon-circle">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1v-9.5z" />
+                      </svg>
+                    </div>
+                    <div className="why-cat-label">
+                      <span>Maisons</span>
+                      <span>&amp; villas</span>
+                    </div>
+                  </div>
+
+                  <div className="why-cat-row">
+                    <div className="why-cat-icon-circle">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M7 21h10M12 3v4M3 11h18M6 21V11a6 6 0 0 1 12 0v10" />
+                      </svg>
+                    </div>
+                    <div className="why-cat-label">
+                      <span>Hôtels</span>
+                      <span>&amp; restaurants</span>
+                    </div>
+                  </div>
+
+                  <div className="why-cat-row">
+                    <div className="why-cat-icon-circle">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                        <line x1="3" y1="6" x2="21" y2="6"/>
+                        <path d="M16 10a4 4 0 0 1-8 0"/>
+                      </svg>
+                    </div>
+                    <div className="why-cat-label">
+                      <span>Commerces</span>
+                      <span>&amp; boutiques</span>
+                    </div>
+                  </div>
+
+                  <div className="why-cat-row">
+                    <div className="why-cat-icon-circle">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                      </svg>
+                    </div>
+                    <div className="why-cat-label">
+                      <span>Espaces publics</span>
+                      <span>&amp; professionnels</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* ===== SECTION "NOS MATÉRIAUX" (FOND CLAIR) ===== */}
+        <section className="sec sec-mat-light" id="materiaux" data-label="Matériaux">
+          <div className="wrap mat-light-wrap">
+            {/* GAUCHE : TEXTE & BOUTON */}
+            <div className="mat-left-col">
+              <div className="mat-eyebrow rv">
+                <span className="mat-eyebrow-line" />
+                <span>NOS MATÉRIAUX</span>
+              </div>
+
+              <h2 className="mat-title rv d1">
+                Une sélection d'exception
+              </h2>
+
+              <p className="mat-desc rv d2">
+                Marbre, granit, pierre naturelle... Des matériaux nobles, soigneusement sélectionnés pour leur beauté, leur résistance et leur durabilité.
+              </p>
+
+              <div className="mat-btn-wrap rv d3">
+                <Link to="/realisations" className="mat-btn">
+                  <span>Voir tous les matériaux</span>
+                  <span className="mat-btn-ar">→</span>
+                </Link>
+              </div>
             </div>
 
-            <div style={{ textAlign: 'center', marginTop: '54px' }} className="rv d2">
-              <Link to="/realisations" className="btn btn-dark">
-                Voir toutes nos réalisations <span className="ar">→</span>
-              </Link>
+            {/* DROITE : 5 DALLES DE PIERRE VERTICALES + FLÈCHES */}
+            <div className="mat-right-col rv d1">
+              <div className="mat-slabs-container" ref={matCardsRef}>
+                {[
+                  {
+                    id: 'calacatta',
+                    category: 'Marbre',
+                    name: 'Calacatta',
+                    img: '/images/mat-calacatta-block.jpg',
+                    fallbackGrad: 'linear-gradient(135deg, #f5f2eb 0%, #dfd9ce 100%)'
+                  },
+                  {
+                    id: 'noir-absolu',
+                    category: 'Granit',
+                    name: 'Noir Absolu',
+                    img: '/images/mat-granit-noir-block.jpg',
+                    fallbackGrad: 'linear-gradient(135deg, #1c1c1c 0%, #0d0d0d 100%)'
+                  },
+                  {
+                    id: 'pierre-eclatee',
+                    category: 'Pierre naturelle',
+                    name: 'Travertin éclatée',
+                    img: '/images/mat-pierre-eclatee-block.jpg',
+                    fallbackGrad: 'linear-gradient(135deg, #d8be9b 0%, #b89870 100%)'
+                  },
+                  {
+                    id: 'onyx-vert',
+                    category: 'Onyx',
+                    name: 'Vert',
+                    img: '/images/mat-onyx-vert.jpg',
+                    fallbackGrad: 'linear-gradient(135deg, #284b3e 0%, #173229 100%)'
+                  },
+                  {
+                    id: 'travertin-classique',
+                    category: 'Travertin',
+                    name: 'Classique',
+                    img: '/images/mat-travertin-classique.jpg',
+                    fallbackGrad: 'linear-gradient(135deg, #ded3c1 0%, #c4b59f 100%)'
+                  }
+                ].map((slab) => (
+                  <div
+                    key={slab.id}
+                    className="mat-slab-card"
+                    title={`${slab.category} · ${slab.name}`}
+                  >
+                    <img
+                      src={slab.img}
+                      alt={`${slab.category} ${slab.name}`}
+                      className="mat-slab-img"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.parentElement.style.background = slab.fallbackGrad;
+                      }}
+                    />
+                    <div className="mat-slab-overlay" />
+                    <div className="mat-slab-caption">
+                      <b className="mat-slab-cat">{slab.category}</b>
+                      <span className="mat-slab-name">{slab.name}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Flèches de navigation empilées à droite */}
+              <div className="mat-arrows-stack">
+                <button
+                  type="button"
+                  className="mat-arrow-btn"
+                  onClick={() => scrollMatCards(-1)}
+                  aria-label="Précédent"
+                >
+                  ←
+                </button>
+                <button
+                  type="button"
+                  className="mat-arrow-btn"
+                  onClick={() => scrollMatCards(1)}
+                  aria-label="Suivant"
+                >
+                  →
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== RÉALISATIONS — Slider horizontal de projets ===== */}
+        <section className="sec sec-real" id="realisations" data-label="Réalisations">
+          <div className="wrap">
+            <div className="real-header">
+              <div>
+                <div className="real-eyebrow rv">
+                  <span className="real-eyebrow-line" />
+                  <span>RÉALISATIONS</span>
+                </div>
+                <h2 className="real-title rv d1">
+                  Des espaces qui<br />
+                  racontent une histoire
+                </h2>
+              </div>
+              <div className="real-view-all rv d2">
+                <Link to="/realisations" className="real-link-all">
+                  <span>Voir tous les projets</span>
+                  <span className="ar">→</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Slider avec flèches latérales */}
+            <div className="real-slider-wrap rv d1">
+              {/* Flèche gauche */}
+              <button
+                type="button"
+                className="real-nav-arrow real-arrow-left"
+                onClick={() => scrollRealRow(-1)}
+                aria-label="Projets précédents"
+              >
+                ←
+              </button>
+
+              {/* Rangée de cartes de projets */}
+              <div className="real-row" ref={realRowRef}>
+                {((realisations?.items && realisations.items.length > 0)
+                  ? realisations.items
+                  : [
+                      { id: 1, cover_image: '/images/realisation-facade-taza.jpg', title: 'Villa privée', city: 'Taza' },
+                      { id: 2, cover_image: '/images/realisation-cuisine-granit.jpg', title: 'Cuisine haut de gamme', city: 'Taza' },
+                      { id: 3, cover_image: '/images/pourquoi-nous-choisir-escalier.jpg', title: 'Escalier en marbre', city: 'Taza' },
+                      { id: 4, cover_image: '/images/realisation-piscine-travertin.jpg', title: 'Piscine & terrasse', city: 'Taza' },
+                      { id: 5, cover_image: '/images/realisation-salle-de-bain.jpg', title: 'Salle de bain marbre', city: 'Casablanca' },
+                    ]
+                ).map((proj) => {
+                  const cover = proj.cover_image || proj.img;
+                  const title = proj.short_title || proj.title;
+                  const city = proj.city || proj.location || 'Taza';
+
+                  return (
+                    <article key={proj.id} className="real-card">
+                      {cover ? (
+                        <img
+                          src={cover}
+                          alt={title}
+                          loading="lazy"
+                          className="real-card-img"
+                        />
+                      ) : (
+                        <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #2a2520, #1a1816)' }} />
+                      )}
+                      <div className="real-card-gradient" />
+                      <div className="real-card-info">
+                        <b className="real-card-title">{title}</b>
+                        <small className="real-card-city">{city}</small>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+
+              {/* Flèche droite */}
+              <button
+                type="button"
+                className="real-nav-arrow real-arrow-right"
+                onClick={() => scrollRealRow(1)}
+                aria-label="Projets suivants"
+              >
+                →
+              </button>
+            </div>
+
+            {/* Pagination tirets discrets */}
+            <div className="real-dots-wrap" aria-hidden="true">
+              <span className="real-dot active" />
+              <span className="real-dot" />
             </div>
           </div>
         </section>
@@ -809,7 +939,7 @@ export default function HomePage() {
                 {faq?.section?.title || 'Tout ce que vous'}{' '}
                 <em>{faq?.section?.title_em || 'devez savoir.'}</em>
               </h2>
-              <p className="rv d2" style={{ marginTop: '20px', color: 'var(--muted)' }}>
+              <p className="rv d2" style={{ marginTop: '20px', color: 'rgba(240,233,220,.6)' }}>
                 {faq?.section?.description !== undefined && faq?.section?.description !== null && faq?.section?.description !== ''
                   ? faq.section.description
                   : 'Vous hésitez sur le choix de votre pierre ? Contactez directement nos tailleurs de pierre pour un conseil sur mesure.'}
@@ -847,7 +977,7 @@ export default function HomePage() {
               ) : faqStatus === 'loading' ? (
                 <LuxuryLoader size={54} minHeight="120px" />
               ) : (
-                <div style={{ padding: '24px 0', color: 'var(--muted)', fontSize: '14px' }}>
+                <div style={{ padding: '24px 0', color: 'rgba(240,233,220,.5)', fontSize: '14px' }}>
                   Aucune question disponible pour le moment.
                 </div>
               )}
@@ -924,7 +1054,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="f">
-                  <label htmlFor="ms">Votre message & détails</label>
+                  <label htmlFor="ms">Votre message &amp; détails</label>
                   <textarea
                     id="ms"
                     placeholder="Surface approximative, ville du chantier, matériau souhaité…"
