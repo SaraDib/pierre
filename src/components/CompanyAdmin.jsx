@@ -310,7 +310,7 @@ export default function CompanyAdmin({ token }) {
         {[
           { id: 'general', label: '1. Identité & Logo', icon: Sparkles },
           { id: 'contacts', label: '2. Téléphone & WhatsApp', icon: Phone },
-          { id: 'location', label: '3. Adresse & Horaires', icon: MapPin },
+          { id: 'location', label: '3. Adresse', icon: MapPin },
           { id: 'social', label: '4. Réseaux Sociaux', icon: Globe },
           { id: 'preview', label: '5. Aperçu en Direct', icon: Eye },
         ].map((tab) => {
@@ -806,6 +806,7 @@ export default function CompanyAdmin({ token }) {
                 </h2>
               </div>
 
+              {/* Champ 'Adresse Showroom & Atelier' désactivé pour le moment (non utilisable)
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#a0988c', marginBottom: '6px', fontWeight: 600 }}>
                   Adresse Showroom & Atelier *
@@ -829,6 +830,7 @@ export default function CompanyAdmin({ token }) {
                   }}
                 />
               </div>
+              */}
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                 <div>
@@ -878,6 +880,7 @@ export default function CompanyAdmin({ token }) {
                 </div>
               </div>
 
+              {/* Champs 'Horaires d'ouverture' et 'Zone de livraison / intervention' désactivés (non utilisés sur le site)
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#a0988c', marginBottom: '6px', fontWeight: 600 }}>
@@ -929,6 +932,7 @@ export default function CompanyAdmin({ token }) {
                   />
                 </div>
               </div>
+              */}
 
               <div>
                 <label style={{ display: 'block', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#a0988c', marginBottom: '6px', fontWeight: 600 }}>
@@ -1084,16 +1088,10 @@ export default function CompanyAdmin({ token }) {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                  <span style={{ fontSize: '13px', color: '#a0988c' }}>Accueil · Savoir-faire · Matériaux</span>
-                  <div style={{
-                    padding: '8px 16px',
-                    borderRadius: '8px',
-                    background: 'linear-gradient(135deg, #c5a059 0%, #9e7d3b 100%)',
-                    color: '#11100f',
-                    fontSize: '12px',
-                    fontWeight: 700
-                  }}>
-                    Devis gratuit →
+                  <span style={{ fontSize: '13px', color: '#a0988c' }}>Accueil · Matériaux · Projets · À propos · Contact</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '4px' }}>
+                    <i style={{ display: 'block', width: '22px', height: '2px', background: '#efe8db' }} />
+                    <i style={{ display: 'block', width: '22px', height: '2px', background: '#efe8db' }} />
                   </div>
                 </div>
               </div>
@@ -1120,77 +1118,87 @@ export default function CompanyAdmin({ token }) {
                 padding: '28px',
                 position: 'relative'
               }}>
-                <div style={{
-                  fontSize: '44px',
-                  fontFamily: "'Fraunces', Georgia, serif",
-                  fontWeight: 900,
-                  letterSpacing: '0.12em',
-                  color: 'rgba(197, 160, 89, 0.08)',
-                  marginBottom: '16px',
-                  userSelect: 'none'
-                }}>
-                  {form.name || 'SUTRAVOMAR'}
-                </div>
+                {(() => {
+                  const baseName = (form.name || 'SUTRAVOMAR').trim();
+                  const tag = (form.tagline || 'STONE LUXE').trim();
+                  const fullBrandName = baseName.toUpperCase().includes('STONE LUXE') ? baseName : `${baseName} ${tag}`.trim();
+                  const displayPhone = form.phone && !form.phone.includes('00 00 00') ? form.phone : '+212 6 12 34 56 78';
+                  const displayAddress = form.address && form.address !== 'Atelier & Showroom, Maroc' ? form.address : 'Taza, Maroc';
+                  const socials = [
+                    { label: 'Instagram', url: form.instagram_url },
+                    { label: 'Facebook', url: form.facebook_url }
+                  ];
+                  return (
+                    <>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '24px', fontSize: '13px', color: '#a0988c' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <img
+                            src={currentDisplayLogo}
+                            alt={fullBrandName}
+                            style={{ height: '36px', objectFit: 'contain' }}
+                            onError={(e) => { e.currentTarget.src = '/logo-gold.png'; }}
+                          />
+                          <div>
+                            <div style={{ color: '#f7f3ea', fontSize: '14px', fontWeight: 600 }}>{fullBrandName}</div>
+                            <div style={{ fontSize: '12px', color: '#888' }}>{form.description && form.description.trim() ? form.description : 'Votre projet mérite le meilleur.'}</div>
+                          </div>
+                        </div>
 
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                  gap: '24px',
-                  fontSize: '13px',
-                  color: '#a0988c'
-                }}>
-                  <div>
-                    <img
-                      src={currentDisplayLogo}
-                      alt={form.name}
-                      style={{ height: '36px', marginBottom: '12px', objectFit: 'contain' }}
-                      onError={(e) => { e.currentTarget.src = '/logo-gold.png'; }}
-                    />
-                    <h4 style={{ color: '#f7f3ea', margin: '0 0 6px', fontSize: '14px' }}>
-                      {form.name} {form.tagline}
-                    </h4>
-                    <p style={{ margin: 0, fontSize: '12px', lineHeight: 1.5, color: '#888' }}>
-                      {form.description}
-                    </p>
-                  </div>
+                        <div style={{
+                          padding: '8px 16px',
+                          borderRadius: '8px',
+                          background: 'linear-gradient(135deg, #c5a059 0%, #9e7d3b 100%)',
+                          color: '#11100f',
+                          fontSize: '12px',
+                          fontWeight: 700
+                        }}>
+                          Demander un devis →
+                        </div>
 
-                  <div>
-                    <h4 style={{ color: '#c5a059', margin: '0 0 10px', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                      Contact direct
-                    </h4>
-                    <p style={{ margin: '4px 0', color: '#f7f3ea', fontWeight: 600 }}>{form.phone}</p>
-                    {form.phone_secondary && (
-                      <p style={{ margin: '4px 0', color: '#a0988c' }}>{form.phone_secondary}</p>
-                    )}
-                    <p style={{ margin: '4px 0', color: '#c5a059' }}>{form.email}</p>
-                    <p style={{ margin: '4px 0' }}>{form.address}</p>
-                    <p style={{ margin: '6px 0 0', color: '#22c55e', fontSize: '12px' }}>
-                      WhatsApp : +{form.whatsapp_number}
-                    </p>
-                  </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '20px' }}>
+                          <div>
+                            <div style={{ color: '#f7f3ea', fontWeight: 600 }}>{displayPhone}</div>
+                            <small style={{ color: '#888' }}>Disponible 7j/7</small>
+                          </div>
+                          <div>
+                            <div style={{ color: '#f7f3ea', fontWeight: 600 }}>{form.maps_url ? '📍 ' : ''}{displayAddress}</div>
+                            <small style={{ color: '#888' }}>Intervention nationale</small>
+                          </div>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            {socials.map((s) => (
+                              <span
+                                key={s.label}
+                                title={s.url || `${s.label} (lien par défaut)`}
+                                style={{
+                                  fontSize: '10px',
+                                  padding: '4px 8px',
+                                  borderRadius: '999px',
+                                  border: '1px solid rgba(197, 160, 89, 0.35)',
+                                  color: '#c5a059'
+                                }}
+                              >
+                                {s.label}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
 
-                  <div>
-                    <h4 style={{ color: '#c5a059', margin: '0 0 10px', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                      Chantiers & Horaires
-                    </h4>
-                    <p style={{ margin: '4px 0', color: '#c5a059', fontWeight: 600 }}>{form.intervention_zone}</p>
-                    <p style={{ margin: '4px 0' }}>{form.opening_hours}</p>
-                    <p style={{ margin: '4px 0' }}>{form.city}, {form.country}</p>
-                  </div>
-                </div>
-
-                <div style={{
-                  marginTop: '24px',
-                  paddingTop: '16px',
-                  borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  fontSize: '11px',
-                  color: '#666'
-                }}>
-                  <span>{(form.copyright || `© ${new Date().getFullYear()} ${form.name || 'SUTRAVOMAR'}. Tous droits réservés.`).replace(/\b20\d{2}\b/, new Date().getFullYear())}</span>
-                  <span>{form.name} · {form.tagline}</span>
-                </div>
+                      <div style={{
+                        marginTop: '24px',
+                        paddingTop: '16px',
+                        borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        fontSize: '11px',
+                        color: '#666'
+                      }}>
+                        <span>{form.copyright ? form.copyright.replace(/\b20\d{2}\b/, new Date().getFullYear()) : `${fullBrandName} © ${new Date().getFullYear()}. Tous droits réservés.`}</span>
+                        <span>| Naturellement unique.</span>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             </div>
           </div>

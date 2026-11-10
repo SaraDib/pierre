@@ -112,6 +112,7 @@ export default function AdminDashboardPage() {
   const [videoFile, setVideoFile] = useState(null);
   const [fileInputKey, setFileInputKey] = useState(0); // force le reset des <input type="file">
   const [archImageFile, setArchImageFile] = useState(null);
+  const [heroImageFile, setHeroImageFile] = useState(null);
 
   const sidebarItems = [
     {
@@ -301,10 +302,17 @@ export default function AdminDashboardPage() {
     try {
       const formData = new FormData();
       Object.keys(acceuilForm).forEach((key) => {
-        if (key !== 'marquee_words' && key !== 'features_bar' && key !== 'arch_image') {
+        if (key !== 'marquee_words' && key !== 'features_bar' && key !== 'arch_image' && key !== 'hero_image') {
           formData.append(key, acceuilForm[key] ?? '');
         }
       });
+
+      if (acceuilForm.hero_image && !heroImageFile) {
+        formData.append('hero_image', acceuilForm.hero_image);
+      }
+      if (heroImageFile) {
+        formData.append('hero_image_file', heroImageFile);
+      }
 
       if (acceuilForm.arch_image && !archImageFile) {
         formData.append('arch_image', acceuilForm.arch_image);
@@ -340,6 +348,7 @@ export default function AdminDashboardPage() {
         }
         setVideoFile(null);
         setArchImageFile(null);
+        setHeroImageFile(null);
         setFileInputKey((k) => k + 1);
       }
 
@@ -370,6 +379,8 @@ export default function AdminDashboardPage() {
         }
         setVideoFile(null);
         setArchImageFile(null);
+        setHeroImageFile(null);
+        setFileInputKey((k) => k + 1);
       }
       setSaveMessage('✓ Contenu réinitialisé avec succès aux valeurs d\'origine.');
       setTimeout(() => setSaveMessage(null), 5000);
@@ -999,7 +1010,61 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
 
-                  {/* CARD 2: VIDÉO HERO */}
+                  {/* CARD 2: IMAGE DE FOND HERO */}
+                  <div style={{
+                    background: 'rgba(26, 24, 22, 0.85)',
+                    border: '1px solid rgba(197, 160, 89, 0.22)',
+                    borderRadius: '14px',
+                    padding: '24px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '18px' }}>
+                      <ImageIcon size={18} color="#c5a059" />
+                      <h2 style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: '18px', color: '#f7f3ea', margin: 0 }}>
+                        2. Image d'Arrière-Plan (Hero)
+                      </h2>
+                    </div>
+                    <div style={{
+                      padding: '14px',
+                      background: 'rgba(17, 16, 15, 0.5)',
+                      border: '1px dashed rgba(197, 160, 89, 0.3)',
+                      borderRadius: '8px',
+                      textAlign: 'center'
+                    }}>
+                      <Upload size={20} color="#c5a059" style={{ margin: '0 auto 6px' }} />
+                      <div style={{ fontSize: '12px', color: '#efe8db', marginBottom: '6px' }}>
+                        Importer une nouvelle image de fond (JPG, PNG, WebP — 10 Mo max) :
+                      </div>
+                      <input
+                        key={`hero-image-${fileInputKey}`}
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setHeroImageFile(e.target.files[0] || null)}
+                        style={{ fontSize: '12px', color: '#a0988c' }}
+                      />
+                      {heroImageFile && (
+                        <div style={{ fontSize: '11px', color: '#10b981', marginTop: '6px' }}>
+                          Fichier sélectionné : {heroImageFile.name} ({(heroImageFile.size / (1024 * 1024)).toFixed(2)} Mo)
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ marginTop: '16px' }}>
+                      <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#c5a059', display: 'block', marginBottom: '8px', fontWeight: 600 }}>
+                        Aperçu :
+                      </span>
+                      <img
+                        src={heroImageFile ? URL.createObjectURL(heroImageFile) : (formatMediaUrl(acceuilForm.hero_image) || '/images/hero-luxury-living.jpg')}
+                        alt="Aperçu image hero"
+                        style={{ width: '100%', maxHeight: '180px', objectFit: 'cover', borderRadius: '8px', border: '1px solid rgba(197, 160, 89, 0.3)', display: 'block' }}
+                      />
+                      {!acceuilForm.hero_image && !heroImageFile && (
+                        <div style={{ fontSize: '11px', color: '#a0988c', marginTop: '6px' }}>
+                          Image par défaut du site actuellement utilisée.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {/* ===== ÉLÉMENTS NON UTILISÉS DANS LE HERO ACTUEL (vidéo, carte arche, stats, ruban) - masqués de l'admin =====
+                  [CARD 2: VIDÉO HERO]
                   <div style={{
                     background: 'rgba(26, 24, 22, 0.85)',
                     border: '1px solid rgba(197, 160, 89, 0.22)',
@@ -1064,7 +1129,7 @@ export default function AdminDashboardPage() {
                       )}
                     </div>
 
-                    {/* Live Video Player Preview */}
+                    [Live Video Player Preview]
                     {(videoFile || acceuilForm.video_url) && (
                       <div style={{ marginTop: '16px' }}>
                         <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#c5a059', display: 'block', marginBottom: '8px', fontWeight: 600 }}>
@@ -1090,7 +1155,7 @@ export default function AdminDashboardPage() {
                     )}
                   </div>
 
-                  {/* CARD 3: CARTE ARCHE (VISUEL DE LA PIERRE) */}
+                  [CARD 3: CARTE ARCHE (VISUEL DE LA PIERRE)]
                   <div style={{
                     background: 'rgba(26, 24, 22, 0.85)',
                     border: '1px solid rgba(197, 160, 89, 0.22)',
@@ -1152,7 +1217,7 @@ export default function AdminDashboardPage() {
                       </div>
                     </div>
 
-                    {/* Choix de texture */}
+                    [Choix de texture]
                     <div style={{ marginBottom: '16px' }}>
                       <label style={{ display: 'block', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#a0988c', marginBottom: '6px', fontWeight: 600 }}>
                         Texture minérale de l'arche
@@ -1187,7 +1252,7 @@ export default function AdminDashboardPage() {
                       </select>
                     </div>
 
-                    {/* Image optionnelle pour l'arche */}
+                    [Image optionnelle pour l'arche]
                     <div style={{
                       padding: '12px',
                       background: 'rgba(17, 16, 15, 0.5)',
@@ -1218,7 +1283,7 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
 
-                  {/* CARD 4: STATISTIQUES HERO */}
+                  [CARD 4: STATISTIQUES HERO]
                   <div style={{
                     background: 'rgba(26, 24, 22, 0.85)',
                     border: '1px solid rgba(197, 160, 89, 0.22)',
@@ -1232,7 +1297,7 @@ export default function AdminDashboardPage() {
                       </h2>
                     </div>
 
-                    {/* Stat 1 */}
+                    [Stat 1]
                     <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '10px', marginBottom: '14px' }}>
                       <div>
                         <label style={{ display: 'block', fontSize: '10px', textTransform: 'uppercase', color: '#7a7266', marginBottom: '4px' }}>
@@ -1279,7 +1344,7 @@ export default function AdminDashboardPage() {
                       </div>
                     </div>
 
-                    {/* Stat 2 */}
+                    [Stat 2]
                     <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '10px', marginBottom: '14px' }}>
                       <div>
                         <label style={{ display: 'block', fontSize: '10px', textTransform: 'uppercase', color: '#7a7266', marginBottom: '4px' }}>
@@ -1326,7 +1391,7 @@ export default function AdminDashboardPage() {
                       </div>
                     </div>
 
-                    {/* Stat 3 */}
+                    [Stat 3]
                     <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '10px' }}>
                       <div>
                         <label style={{ display: 'block', fontSize: '10px', textTransform: 'uppercase', color: '#7a7266', marginBottom: '4px' }}>
@@ -1374,7 +1439,7 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
 
-                  {/* CARD 5: RUBAN DÉFILANT DORÉ (MARQUEE) */}
+                  [CARD 5: RUBAN DÉFILANT DORÉ (MARQUEE)]
                   <div style={{
                     gridColumn: '1 / -1',
                     background: 'rgba(26, 24, 22, 0.85)',
@@ -1411,7 +1476,7 @@ export default function AdminDashboardPage() {
                       }}
                     />
 
-                    {/* Badge Preview */}
+                    [Badge Preview]
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                       {marqueeInput.split(',').map((w, idx) => {
                         const trimmed = w.trim();
@@ -1436,6 +1501,7 @@ export default function AdminDashboardPage() {
                       })}
                     </div>
                   </div>
+                  ===== FIN DES ÉLÉMENTS MASQUÉS ===== */}
 
                   {/* CARD 6: BARRE DES 4 ENGAGEMENTS (FEATURES BAR SOUS LE HERO) */}
                   <div style={{

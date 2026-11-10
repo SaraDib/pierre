@@ -21,23 +21,6 @@ function FacebookIcon() {
   );
 }
 
-function TikTokIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="footer-social-icon">
-      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.89 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.34 0 .67.06.97.17V9.32a6.34 6.34 0 0 0-.97-.08 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V9.06a8.28 8.28 0 0 0 4.76 1.5V7.11a4.83 4.83 0 0 1-1-.42z" />
-    </svg>
-  );
-}
-
-function YouTubeIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="footer-social-icon">
-      <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z" />
-      <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="#0d0c0b" />
-    </svg>
-  );
-}
-
 export default function Footer() {
   const { company } = useCompany();
   const currentYear = new Date().getFullYear();
@@ -58,7 +41,9 @@ export default function Footer() {
       ? company.address
       : 'Taza, Maroc';
 
-  const copyright = `${fullBrandName} © ${currentYear}. Tous droits réservés.`;
+  const copyright = company.copyright && company.copyright.trim()
+    ? company.copyright.replace(/\b20\d{2}\b/, currentYear)
+    : `${fullBrandName} © ${currentYear}. Tous droits réservés.`;
 
   return (
     <footer className="compact">
@@ -75,7 +60,7 @@ export default function Footer() {
             />
             <div className="footer-brand-text">
               <div className="footer-brand-name">{fullBrandName}</div>
-              <div className="footer-brand-tagline">Votre projet mérite le meilleur.</div>
+              <div className="footer-brand-tagline">{company.description && company.description.trim() ? company.description : 'Votre projet mérite le meilleur.'}</div>
             </div>
           </Link>
 
@@ -104,14 +89,26 @@ export default function Footer() {
 
             {/* Location */}
             <div className="footer-contact-item">
-              <span className="footer-contact-icon-wrap" aria-hidden="true">
+              <a
+                className="footer-contact-icon-wrap"
+                href={company.maps_url || undefined}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Voir sur Google Maps"
+                title="Voir sur Google Maps"
+                style={company.maps_url ? undefined : { pointerEvents: 'none' }}
+              >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className="footer-contact-icon">
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                   <circle cx="12" cy="10" r="3" />
                 </svg>
-              </span>
+              </a>
               <div className="footer-contact-meta">
-                <span>{displayAddress}</span>
+                {company.maps_url ? (
+                  <a href={company.maps_url} target="_blank" rel="noopener noreferrer">{displayAddress}</a>
+                ) : (
+                  <span>{displayAddress}</span>
+                )}
                 <small>Intervention nationale</small>
               </div>
             </div>
@@ -136,26 +133,6 @@ export default function Footer() {
                 className="footer-social-link"
               >
                 <FacebookIcon />
-              </a>
-
-              <a
-                href={company.tiktok_url || 'https://tiktok.com'}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="TikTok"
-                className="footer-social-link"
-              >
-                <TikTokIcon />
-              </a>
-
-              <a
-                href={company.youtube_url || 'https://youtube.com'}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="YouTube"
-                className="footer-social-link"
-              >
-                <YouTubeIcon />
               </a>
             </div>
           </div>

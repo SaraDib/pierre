@@ -98,19 +98,8 @@ export default function Header() {
           Devis gratuit <span className="ar">→</span>
         </Link>
 
-        {/* Nav icons: search + burger */}
+        {/* Nav icons: burger */}
         <div className="nav-icons">
-          <button
-            className="nav-icon-btn"
-            aria-label="Rechercher"
-            onClick={() => handleNavClick('#materiaux')}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="7" />
-              <line x1="16.5" y1="16.5" x2="22" y2="22" />
-            </svg>
-          </button>
-
           <button
             className={`burger ${menuOpen ? 'o' : ''}`}
             id="bg"
