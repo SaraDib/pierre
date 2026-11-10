@@ -71,7 +71,7 @@ export default function Header() {
               </Link>
             </li>
             <li>
-              <Link to="/#materiaux" onClick={() => handleNavClick('#materiaux')}>
+              <Link to="/detailsmateriaux" onClick={closeMenu}>
                 Matériaux
               </Link>
             </li>

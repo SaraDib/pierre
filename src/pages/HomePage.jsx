@@ -467,6 +467,11 @@ export default function HomePage() {
               alt="SUTRAVOMAR STONE LUXE — Marbre et Pierre d'exception"
               className="hero-bg-img"
               loading="eager"
+              onError={(e) => {
+                console.error('[Hero Image Error] Impossible de charger l\'image:', e.currentTarget.src);
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = "/images/hero-luxury-living.jpg";
+              }}
             />
             <div className="hero-overlay" />
           </div>
