@@ -43,4 +43,40 @@
       <image:caption>Vasque monolithique sculptée et habillage mural en pierre naturelle</image:caption>
     </image:image>
   </url>
+  <url>
+    <loc>https://sutravomar-pierre.ma/detailsmateriaux</loc>
+    <lastmod>2026-11-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sutravomar-pierre.ma/detailsmateriaux/marbre-calacatta</loc>
+    <lastmod>2026-11-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://sutravomar-pierre.ma/detailsmateriaux/granit-noir-absolu</loc>
+    <lastmod>2026-11-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://sutravomar-pierre.ma/detailsmateriaux/pierre-naturelle-travertin-eclatee</loc>
+    <lastmod>2026-11-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://sutravomar-pierre.ma/detailsmateriaux/onyx-vert</loc>
+    <lastmod>2026-11-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://sutravomar-pierre.ma/detailsmateriaux/travertin-classique</loc>
+    <lastmod>2026-11-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>

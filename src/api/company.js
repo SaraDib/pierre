@@ -28,7 +28,7 @@ export const DEFAULT_COMPANY = {
   whatsapp_number: '212600000000',
   email: 'contact@sutravomar-pierre.ma',
   address: 'Atelier & Showroom, Maroc',
-  city: 'Casablanca',
+  city: 'Taza',
   country: 'Maroc',
   opening_hours: 'Lun - Sam : 08h30 - 18h30',
   intervention_zone: 'Intervention dans tout le Maroc',

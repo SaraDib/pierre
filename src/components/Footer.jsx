@@ -42,44 +42,61 @@ export default function Footer() {
   const { company } = useCompany();
   const currentYear = new Date().getFullYear();
 
-  const copyright = company.copyright
-    ? company.copyright.replace(/\b20\d{2}\b/, currentYear)
-    : `SUTRAVOMAR STONE LUXE © ${currentYear}. Tous droits réservés.`;
+  const baseName = (company.name || 'SUTRAVOMAR').trim();
+  const tagline = (company.tagline || 'STONE LUXE').trim();
+  const fullBrandName = baseName.toUpperCase().includes('STONE LUXE')
+    ? baseName
+    : `${baseName} ${tagline}`.trim();
+
+  const displayPhone =
+    company.phone && !company.phone.includes('00 00 00')
+      ? company.phone
+      : '+212 6 12 34 56 78';
+
+  const displayAddress =
+    company.address && company.address !== 'Atelier & Showroom, Maroc'
+      ? company.address
+      : 'Taza, Maroc';
+
+  const copyright = `${fullBrandName} © ${currentYear}. Tous droits réservés.`;
 
   return (
     <footer className="compact">
       <div className="wrap">
-        {/* ===== TOP ROW: brand | CTA button | contact ===== */}
+        {/* ===== TOP ROW: brand | CTA button | contact + socials ===== */}
         <div className="footer-top">
           {/* Brand */}
-          <div className="footer-brand">
+          <Link to="/#accueil" className="footer-brand">
             <img
-              src={formatCompanyMediaUrl(company.logo_url) || '/logo-gold.png'}
-              alt={`${company.name} ${company.tagline || ''}`}
+              src={formatCompanyMediaUrl(company.logo_footer_url || company.logo_url) || '/logo-gold.png'}
+              alt={fullBrandName}
               className="footer-logo"
               onError={(e) => { e.currentTarget.src = '/logo-gold.png'; }}
             />
             <div className="footer-brand-text">
-              <div className="footer-brand-name">{company.name || 'SUTRAVOMAR STONE LUXE'}</div>
+              <div className="footer-brand-name">{fullBrandName}</div>
               <div className="footer-brand-tagline">Votre projet mérite le meilleur.</div>
             </div>
-          </div>
+          </Link>
 
           {/* CTA button */}
           <Link to="/#devis" className="btn btn-ochre footer-cta-btn">
-            Demander un devis <span className="ar">→</span>
+            <span>Demander un devis</span>
+            <span className="ar">→</span>
           </Link>
 
           {/* Contact + socials */}
           <div className="footer-contact">
             {/* Phone */}
             <div className="footer-contact-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="footer-contact-icon">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-              </svg>
-              <div>
-                <a href={`tel:${(company.phone || '+212 6 12 34 56 78').replace(/\s+/g, '')}`}>
-                  {company.phone || '+212 6 12 34 56 78'}
+              <span className="footer-contact-icon-wrap" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className="footer-contact-icon">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                </svg>
+              </span>
+              <div className="footer-contact-meta">
+                <a href={`tel:${displayPhone.replace(/\s+/g, '')}`}>
+                  {displayPhone}
                 </a>
                 <small>Disponible 7j/7</small>
               </div>
@@ -87,12 +104,14 @@ export default function Footer() {
 
             {/* Location */}
             <div className="footer-contact-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="footer-contact-icon">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                <circle cx="12" cy="10" r="3"/>
-              </svg>
-              <div>
-                <span>{company.address || 'Taza, Maroc'}</span>
+              <span className="footer-contact-icon-wrap" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className="footer-contact-icon">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+              </span>
+              <div className="footer-contact-meta">
+                <span>{displayAddress}</span>
                 <small>Intervention nationale</small>
               </div>
             </div>
@@ -145,7 +164,9 @@ export default function Footer() {
         {/* ===== BOTTOM ROW: copyright | tagline ===== */}
         <div className="footer-bottom">
           <span>{copyright}</span>
-          <span className="footer-signature">| Naturellement unique.</span>
+          <span className="footer-signature">
+            <span className="footer-sig-sep">|</span> Naturellement unique.
+          </span>
         </div>
       </div>
     </footer>

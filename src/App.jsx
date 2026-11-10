@@ -5,6 +5,8 @@ import Footer from './components/Footer';
 import FloatingButtons from './components/FloatingButtons';
 import HomePage from './pages/HomePage';
 import RealisationsPage from './pages/RealisationsPage';
+import MaterialsPage from './pages/MaterialsPage';
+import MaterialDetailPage from './pages/MaterialDetailPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -42,6 +44,8 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/realisations" element={<RealisationsPage />} />
+        <Route path="/detailsmateriaux" element={<MaterialsPage />} />
+        <Route path="/detailsmateriaux/:slug" element={<MaterialDetailPage />} />
         <Route path="/admin/login" element={<AdminLoginPage />} />
         <Route
           path="/admin"

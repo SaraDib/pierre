@@ -21,9 +21,9 @@ import {
 function InstagramIcon({ size = 15, color = '#e1306c' }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
     </svg>
   );
 }
@@ -31,7 +31,7 @@ function InstagramIcon({ size = 15, color = '#e1306c' }) {
 function FacebookIcon({ size = 15, color = '#1877f2' }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
     </svg>
   );
 }
@@ -815,7 +815,7 @@ export default function CompanyAdmin({ token }) {
                   required
                   value={form.address}
                   onChange={(e) => setForm({ ...form, address: e.target.value })}
-                  placeholder="Atelier & Showroom, Route de Rabat, Casablanca, Maroc"
+                  placeholder="Atelier & Showroom, Route de Rabat, Taza, Maroc"
                   style={{
                     width: '100%',
                     boxSizing: 'border-box',
@@ -839,7 +839,7 @@ export default function CompanyAdmin({ token }) {
                     type="text"
                     value={form.city || ''}
                     onChange={(e) => setForm({ ...form, city: e.target.value })}
-                    placeholder="Casablanca"
+                    placeholder="Taza"
                     style={{
                       width: '100%',
                       boxSizing: 'border-box',

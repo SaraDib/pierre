@@ -5,6 +5,7 @@ import {
   Home,
   Sparkles,
   Layers,
+  LayoutGrid,
   Boxes,
   ListChecks,
   HelpCircle,
@@ -43,6 +44,7 @@ import {
 } from '../api/acceuil';
 import SavoirFaireAdmin from '../components/SavoirFaireAdmin';
 import MateriauxAdmin from '../components/MateriauxAdmin';
+import CatalogueAdmin from '../components/CatalogueAdmin';
 import RealisationsAdmin from '../components/RealisationsAdmin';
 import MethodeAdmin from '../components/MethodeAdmin';
 import FaqAdmin from '../components/FaqAdmin';
@@ -51,6 +53,7 @@ import DevisAdmin from '../components/DevisAdmin';
 import { useCompany } from '../context/CompanyContext';
 import { formatCompanyMediaUrl } from '../api/company';
 import { getMateriauxAdmin } from '../api/materiaux';
+import { getCatalogueAdmin } from '../api/catalogue';
 import { getRealisationsAdmin } from '../api/realisations';
 import { getMethodeAdmin } from '../api/methode';
 import { getDevisStats } from '../api/devis';
@@ -71,6 +74,7 @@ export default function AdminDashboardPage() {
   const [materiauxCount, setMateriauxCount] = useState(null);
   const [realisationsCount, setRealisationsCount] = useState(null);
   const [methodeCount, setMethodeCount] = useState(null);
+  const [catalogueCount, setCatalogueCount] = useState(null);
   const [faqCount, setFaqCount] = useState(null);
   const [devisCount, setDevisCount] = useState(null);
   const [materiauxOptions, setMateriauxOptions] = useState([]);
@@ -125,6 +129,13 @@ export default function AdminDashboardPage() {
       path: '/#materiaux',
       icon: Layers,
       badge: materiauxCount === null ? 'Matériaux' : `${materiauxCount} roches`
+    },
+    {
+      id: 'catalogue',
+      label: 'Catalogue matériaux',
+      path: '/detailsmateriaux',
+      icon: LayoutGrid,
+      badge: catalogueCount === null ? 'Cartes & pages' : `${catalogueCount} matériaux`
     },
     {
       id: 'realisations',
@@ -205,6 +216,15 @@ export default function AdminDashboardPage() {
         if (data?.items) {
           setMateriauxOptions(data.items);
           setMateriauxCount(data.items.length);
+        }
+      })
+      .catch(() => {});
+
+    getCatalogueAdmin(token)
+      .then((res) => {
+        const list = Array.isArray(res) ? res : res?.items;
+        if (Array.isArray(list)) {
+          setCatalogueCount(list.length);
         }
       })
       .catch(() => {});
@@ -650,7 +670,7 @@ export default function AdminDashboardPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
 
             <a
-              href={`/#${activeSection === 'accueil' ? 'accueil' : activeSection}`}
+              href={activeSection === 'catalogue' ? '/detailsmateriaux' : `/#${activeSection === 'accueil' ? 'accueil' : activeSection}`}
               target="_blank"
               rel="noopener noreferrer"
               style={{
@@ -1435,6 +1455,11 @@ export default function AdminDashboardPage() {
           {/* SECTION 3: MATÉRIAUX */}
           {activeSection === 'materiaux' && (
             <MateriauxAdmin token={token} onCountChange={setMateriauxCount} />
+          )}
+
+          {/* SECTION 3b: CATALOGUE MATÉRIAUX (carrousel, /detailsmateriaux, pages détail) */}
+          {activeSection === 'catalogue' && (
+            <CatalogueAdmin token={token} onCountChange={setCatalogueCount} />
           )}
 
           {/* SECTION 4: RÉALISATIONS */}

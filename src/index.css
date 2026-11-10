@@ -1308,6 +1308,7 @@ header nav a.active::after {
 
 /* Colonne droite : dalles + flèches */
 .mat-right-col {
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 22px;
@@ -1328,43 +1329,53 @@ header nav a.active::after {
   display: none;
 }
 
-/* Chaque dalle de pierre dressée */
-.mat-slab-card {
-  flex: 0 0 124px;
-  height: 256px;
-  border-radius: 14px;
+/* ===== CARTE MATÉRIAU PARTAGÉE (carrousel accueil + grille /detailsmateriaux) =====
+   Une seule définition : ratio, rayon, dégradé, typographie et survol sont identiques partout.
+   Le ratio + object-fit: cover recadrent automatiquement toute nouvelle image. */
+.material-card {
+  display: block;
   position: relative;
   overflow: hidden;
+  aspect-ratio: 124 / 256;
+  border-radius: 14px;
   cursor: pointer;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.20), 0 4px 10px rgba(0, 0, 0, 0.08);
-  transition: transform .4s var(--ease), box-shadow .4s var(--ease);
-  background: #ddd;
+  color: #fff;
+  text-decoration: none;
+  transition: transform .4s var(--ease);
 }
 
-.mat-slab-card:hover {
+.material-card:hover,
+.material-card:focus-visible {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.28), 0 6px 14px rgba(0, 0, 0, 0.12);
 }
 
-.mat-slab-img {
+.material-card:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.material-card__img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   transition: transform 1s var(--ease);
 }
 
-.mat-slab-card:hover .mat-slab-img {
+.material-card:hover .material-card__img {
   transform: scale(1.08);
 }
 
-.mat-slab-overlay {
+.material-card__overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.42) 38%, transparent 70%);
   pointer-events: none;
 }
 
-.mat-slab-caption {
+.material-card__caption {
   position: absolute;
   left: 12px;
   right: 12px;
@@ -1373,21 +1384,47 @@ header nav a.active::after {
   display: flex;
   flex-direction: column;
   line-height: 1.25;
-  color: #fff;
 }
 
-.mat-slab-cat {
+.material-card__name {
   font-size: 11px;
   font-weight: 600;
   color: #ffffff;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
 }
 
-.mat-slab-name {
+.material-card__variant {
   font-size: 9.5px;
   color: rgba(240, 233, 220, 0.85);
   letter-spacing: .04em;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+}
+
+/* Contexte carrousel : largeur fixe (hauteur = ratio) */
+.material-card--carousel {
+  flex: 0 0 124px;
+  width: 124px;
+  min-width: 0;
+}
+
+/* Contexte grille : pleine largeur de colonne, ratio 4:5, texte proportionnel */
+.material-card--grid {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+}
+
+.material-card--grid .material-card__caption {
+  left: 22px;
+  right: 22px;
+  bottom: 24px;
+}
+
+.material-card--grid .material-card__name {
+  font-size: 17px;
+}
+
+.material-card--grid .material-card__variant {
+  font-size: 13px;
 }
 
 /* Flèches de navigation empilées */
@@ -2081,9 +2118,17 @@ form {
 /* Footer compact */
 footer,
 footer.compact {
-  background: #0a0908;
-  color: rgba(240,233,220,.6);
+  position: relative;
+  background-color: #0b0a09;
+  background-image:
+    linear-gradient(90deg, rgba(11, 10, 9, 0.16) 0%, rgba(11, 10, 9, 0.24) 24%, rgba(11, 10, 9, 0.78) 42%, #0b0a09 62%),
+    url('/images/footer-stone-bg.jpg?v=2');
+  background-size: cover, auto 100%;
+  background-position: left center, left center;
+  background-repeat: no-repeat;
+  color: rgba(240, 233, 220, 0.65);
   padding: 0;
+  border-top: 1px solid rgba(240, 233, 220, 0.08);
 }
 
 .footer-top {
@@ -2091,14 +2136,15 @@ footer.compact {
   align-items: center;
   justify-content: space-between;
   gap: 32px;
-  padding: 34px 0;
-  border-bottom: 1px solid rgba(239, 232, 219, 0.08);
+  padding: 38px 0 34px;
+  border-bottom: 1px solid rgba(240, 233, 220, 0.14);
 }
 
 .footer-brand {
   display: flex;
   align-items: center;
   gap: 16px;
+  text-decoration: none;
 }
 
 .footer-brand-text {
@@ -2107,29 +2153,40 @@ footer.compact {
 }
 
 .footer-brand-name {
-  color: var(--bone);
-  font-family: var(--serif);
-  font-size: 15px;
-  letter-spacing: .08em;
-  font-weight: 400;
+  color: #d5b26e;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .footer-brand-tagline {
-  color: rgba(240, 233, 220, 0.45);
-  font-size: 11px;
-  letter-spacing: .04em;
-  margin-top: 2px;
+  color: rgba(245, 240, 230, 0.86);
+  font-size: 13.5px;
+  font-weight: 400;
+  letter-spacing: .01em;
+  margin-top: 5px;
 }
 
 .footer-cta-btn {
-  padding: 14px 28px;
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: .12em;
-  border-radius: 999px;
-  background: var(--gold, #dfbe82);
-  color: #131210;
+  padding: 13px 28px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .01em;
+  text-transform: none;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #dfc188 0%, #c9a461 100%);
+  color: #171411;
   text-decoration: none;
+  gap: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+
+.footer-cta-btn:hover {
+  background: linear-gradient(180deg, #e7cb95 0%, #d4b06d 100%);
+  color: #0d0c0b;
 }
 
 .footer-contact {
@@ -2141,45 +2198,60 @@ footer.compact {
 .footer-contact-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
-.footer-contact-icon {
-  width: 16px;
-  height: 16px;
-  color: var(--gold, #dfbe82);
+.footer-contact-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(240, 233, 220, 0.16);
+  background: rgba(255, 255, 255, 0.03);
+  display: grid;
+  place-items: center;
   flex-shrink: 0;
 }
 
-.footer-contact-item div {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.25;
+.footer-contact-icon {
+  width: 15px;
+  height: 15px;
+  color: rgba(245, 240, 230, 0.88);
+  flex-shrink: 0;
 }
 
-.footer-contact-item a,
-.footer-contact-item span {
-  color: #ffffff;
-  font-size: 12.5px;
-  font-weight: 500;
-  letter-spacing: .02em;
+.footer-contact-meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.footer-contact-meta a,
+.footer-contact-meta span {
+  color: #f5f0e6;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .01em;
   text-decoration: none;
 }
 
-.footer-contact-item a:hover {
+.footer-contact-meta a:hover {
   color: var(--gold, #dfbe82);
 }
 
-.footer-contact-item small {
-  color: rgba(240, 233, 220, 0.45);
-  font-size: 10.5px;
+.footer-contact-meta small {
+  color: rgba(240, 233, 220, 0.52);
+  font-size: 11px;
+  margin-top: 2px;
 }
 
 .footer-socials {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding-left: 8px;
+  gap: 16px;
+  padding-left: 26px;
+  margin-left: 4px;
+  height: 34px;
+  border-left: 1px solid rgba(213, 178, 110, 0.24);
 }
 
 .footer-social-link {
@@ -2187,7 +2259,7 @@ footer.compact {
   height: 22px;
   display: grid;
   place-items: center;
-  color: rgba(240, 233, 220, 0.85);
+  color: #f5f0e6;
   transition: all .25s var(--ease);
   text-decoration: none;
 }
@@ -2198,8 +2270,8 @@ footer.compact {
 }
 
 .footer-social-icon {
-  width: 17px;
-  height: 17px;
+  width: 16px;
+  height: 16px;
   display: block;
 }
 
@@ -2207,15 +2279,22 @@ footer.compact {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18px 0;
+  padding: 20px 0 26px;
   font-size: 11.5px;
-  color: rgba(240, 233, 220, 0.4);
+  color: rgba(240, 233, 220, 0.52);
 }
 
 .footer-signature {
-  color: var(--gold, #dfbe82);
-  font-size: 11.5px;
-  letter-spacing: .05em;
+  color: rgba(240, 233, 220, 0.65);
+  font-size: 12px;
+  letter-spacing: .02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-sig-sep {
+  color: rgba(240, 233, 220, 0.28);
 }
 
 /* Legacy footer classes kept for compatibility */
@@ -3041,7 +3120,18 @@ footer a:hover {
 
   .footer-contact {
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 16px 24px;
+  }
+
+  .footer-socials {
+    border-left: none;
+    padding-left: 0;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
 }
 

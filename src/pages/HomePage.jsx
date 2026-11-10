@@ -14,11 +14,14 @@ import {
 import { useCompany } from '../context/CompanyContext';
 import { getDevisSection, submitDevis, DEFAULT_DEVIS_SECTION } from '../api/devis';
 import LuxuryLoader from '../components/LuxuryLoader';
+import MaterialCard from '../components/MaterialCard';
+import { useMaterials } from '../data/useMaterials';
 import { useSeo, setJsonLd } from '../seo/useSeo';
 
 export default function HomePage() {
   const { company } = useCompany();
   useSeo({ path: '/' });
+  const { materials, section: matSection } = useMaterials();
   // Contenu d'accueil dynamique (depuis la table acceuil)
   const [homeContent, setHomeContent] = useState({
     eyebrow: 'SUTRAVOMAR STONE LUXE',
@@ -474,7 +477,7 @@ export default function HomePage() {
               {/* Localisation */}
               <div className="hero-location rv d3">
                 <svg className="hero-pin-icon" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                 </svg>
                 <span>{company.city || 'Taza, Maroc'}</span>
               </div>
@@ -498,7 +501,7 @@ export default function HomePage() {
           <div className="wrap features-grid">
             <div className="feature-item">
               <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
               </svg>
               <div>
                 <b>Pierres naturelles</b>
@@ -507,7 +510,7 @@ export default function HomePage() {
             </div>
             <div className="feature-item">
               <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
               </svg>
               <div>
                 <b>Savoir-faire</b>
@@ -516,7 +519,7 @@ export default function HomePage() {
             </div>
             <div className="feature-item">
               <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
+                <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
               <div>
                 <b>Livraison &amp; Pose</b>
@@ -525,7 +528,7 @@ export default function HomePage() {
             </div>
             <div className="feature-item">
               <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+                <circle cx="12" cy="12" r="10" /><path d="M12 8v4l3 3" />
               </svg>
               <div>
                 <b>Engagement durable</b>
@@ -654,9 +657,9 @@ export default function HomePage() {
                   <div className="why-cat-row">
                     <div className="why-cat-icon-circle">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-                        <line x1="3" y1="6" x2="21" y2="6"/>
-                        <path d="M16 10a4 4 0 0 1-8 0"/>
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <path d="M16 10a4 4 0 0 1-8 0" />
                       </svg>
                     </div>
                     <div className="why-cat-label">
@@ -668,10 +671,10 @@ export default function HomePage() {
                   <div className="why-cat-row">
                     <div className="why-cat-icon-circle">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                        <circle cx="9" cy="7" r="4"/>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                       </svg>
                     </div>
                     <div className="why-cat-label">
@@ -692,19 +695,21 @@ export default function HomePage() {
             <div className="mat-left-col">
               <div className="mat-eyebrow rv">
                 <span className="mat-eyebrow-line" />
-                <span>NOS MATÉRIAUX</span>
+                <span>{matSection?.eyebrow || 'NOS MATÉRIAUX'}</span>
               </div>
 
               <h2 className="mat-title rv d1">
-                Une sélection d'exception
+                {matSection?.title || "Une sélection d'exception"}{' '}
+                {matSection?.title_em && <em>{matSection.title_em}</em>}
               </h2>
 
               <p className="mat-desc rv d2">
-                Marbre, granit, pierre naturelle... Des matériaux nobles, soigneusement sélectionnés pour leur beauté, leur résistance et leur durabilité.
+                {matSection?.description ||
+                  'Marbre, granit, pierre naturelle... Des matériaux nobles, soigneusement sélectionnés pour leur beauté, leur résistance et leur durabilité.'}
               </p>
 
               <div className="mat-btn-wrap rv d3">
-                <Link to="/realisations" className="mat-btn">
+                <Link to="/detailsmateriaux" className="mat-btn">
                   <span>Voir tous les matériaux</span>
                   <span className="mat-btn-ar">→</span>
                 </Link>
@@ -714,63 +719,8 @@ export default function HomePage() {
             {/* DROITE : 5 DALLES DE PIERRE VERTICALES + FLÈCHES */}
             <div className="mat-right-col rv d1">
               <div className="mat-slabs-container" ref={matCardsRef}>
-                {[
-                  {
-                    id: 'calacatta',
-                    category: 'Marbre',
-                    name: 'Calacatta',
-                    img: '/images/mat-calacatta-block.jpg',
-                    fallbackGrad: 'linear-gradient(135deg, #f5f2eb 0%, #dfd9ce 100%)'
-                  },
-                  {
-                    id: 'noir-absolu',
-                    category: 'Granit',
-                    name: 'Noir Absolu',
-                    img: '/images/mat-granit-noir-block.jpg',
-                    fallbackGrad: 'linear-gradient(135deg, #1c1c1c 0%, #0d0d0d 100%)'
-                  },
-                  {
-                    id: 'pierre-eclatee',
-                    category: 'Pierre naturelle',
-                    name: 'Travertin éclatée',
-                    img: '/images/mat-pierre-eclatee-block.jpg',
-                    fallbackGrad: 'linear-gradient(135deg, #d8be9b 0%, #b89870 100%)'
-                  },
-                  {
-                    id: 'onyx-vert',
-                    category: 'Onyx',
-                    name: 'Vert',
-                    img: '/images/mat-onyx-vert.jpg',
-                    fallbackGrad: 'linear-gradient(135deg, #284b3e 0%, #173229 100%)'
-                  },
-                  {
-                    id: 'travertin-classique',
-                    category: 'Travertin',
-                    name: 'Classique',
-                    img: '/images/mat-travertin-classique.jpg',
-                    fallbackGrad: 'linear-gradient(135deg, #ded3c1 0%, #c4b59f 100%)'
-                  }
-                ].map((slab) => (
-                  <div
-                    key={slab.id}
-                    className="mat-slab-card"
-                    title={`${slab.category} · ${slab.name}`}
-                  >
-                    <img
-                      src={slab.img}
-                      alt={`${slab.category} ${slab.name}`}
-                      className="mat-slab-img"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        e.currentTarget.parentElement.style.background = slab.fallbackGrad;
-                      }}
-                    />
-                    <div className="mat-slab-overlay" />
-                    <div className="mat-slab-caption">
-                      <b className="mat-slab-cat">{slab.category}</b>
-                      <span className="mat-slab-name">{slab.name}</span>
-                    </div>
-                  </div>
+                {materials.map((m) => (
+                  <MaterialCard key={m.id} material={m} layout="carousel" />
                 ))}
               </div>
 
@@ -836,12 +786,12 @@ export default function HomePage() {
                 {((realisations?.items && realisations.items.length > 0)
                   ? realisations.items
                   : [
-                      { id: 1, cover_image: '/images/realisation-facade-taza.jpg', title: 'Villa privée', city: 'Taza' },
-                      { id: 2, cover_image: '/images/realisation-cuisine-granit.jpg', title: 'Cuisine haut de gamme', city: 'Taza' },
-                      { id: 3, cover_image: '/images/pourquoi-nous-choisir-escalier.jpg', title: 'Escalier en marbre', city: 'Taza' },
-                      { id: 4, cover_image: '/images/realisation-piscine-travertin.jpg', title: 'Piscine & terrasse', city: 'Taza' },
-                      { id: 5, cover_image: '/images/realisation-salle-de-bain.jpg', title: 'Salle de bain marbre', city: 'Casablanca' },
-                    ]
+                    { id: 1, cover_image: '/images/realisation-facade-taza.jpg', title: 'Villa privée', city: 'Taza' },
+                    { id: 2, cover_image: '/images/realisation-cuisine-granit.jpg', title: 'Cuisine haut de gamme', city: 'Taza' },
+                    { id: 3, cover_image: '/images/pourquoi-nous-choisir-escalier.jpg', title: 'Escalier en marbre', city: 'Taza' },
+                    { id: 4, cover_image: '/images/realisation-piscine-travertin.jpg', title: 'Piscine & terrasse', city: 'Taza' },
+                    { id: 5, cover_image: '/images/realisation-salle-de-bain.jpg', title: 'Salle de bain marbre', city: 'Taza' },
+                  ]
                 ).map((proj) => {
                   const cover = proj.cover_image || proj.img;
                   const title = proj.short_title || proj.title;
@@ -910,11 +860,11 @@ export default function HomePage() {
               {((methode?.items && methode.items.length > 0)
                 ? methode.items
                 : [
-                    { id: 1, position: 1, title: 'Visite & métrage', short_description: 'Nous étudions votre projet sur place et relevons chaque dimension.' },
-                    { id: 2, position: 2, title: 'Devis & choix', short_description: 'Devis détaillé et sélection des pierres et finitions avec vous.' },
-                    { id: 3, position: 3, title: 'Taille en atelier', short_description: 'Découpe, façonnage et contrôle qualité de chaque pièce.' },
-                    { id: 4, position: 4, title: 'Livraison & pose', short_description: 'Transport sécurisé et pose soignée, joints et finitions inclus.' }
-                  ]
+                  { id: 1, position: 1, title: 'Visite & métrage', short_description: 'Nous étudions votre projet sur place et relevons chaque dimension.' },
+                  { id: 2, position: 2, title: 'Devis & choix', short_description: 'Devis détaillé et sélection des pierres et finitions avec vous.' },
+                  { id: 3, position: 3, title: 'Taille en atelier', short_description: 'Découpe, façonnage et contrôle qualité de chaque pièce.' },
+                  { id: 4, position: 4, title: 'Livraison & pose', short_description: 'Transport sécurisé et pose soignée, joints et finitions inclus.' }
+                ]
               ).map((step, idx) => {
                 const delayClass = idx === 1 ? 'd1' : idx === 2 ? 'd2' : idx >= 3 ? 'd3' : '';
                 const dotNumber = step.step_number ? parseInt(step.step_number, 10) || idx + 1 : idx + 1;

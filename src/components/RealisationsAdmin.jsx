@@ -1536,7 +1536,7 @@ export default function RealisationsAdmin({ token, onCountChange }) {
                     type="text"
                     value={itemForm.location}
                     onChange={(e) => setItemForm({ ...itemForm, location: e.target.value })}
-                    placeholder="Ex: Rabat (Harhoura), Casablanca (Anfa)..."
+                    placeholder="Ex: Rabat (Harhoura), Taza (Anfa)..."
                     style={inputStyle}
                   />
                 </div>
