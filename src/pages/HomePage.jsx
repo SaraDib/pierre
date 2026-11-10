@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import StoneTexture from '../components/StoneTexture';
-import { getAcceuilContent, formatMediaUrl } from '../api/acceuil';
+import { getAcceuilContent, formatMediaUrl, DEFAULT_FEATURES_BAR } from '../api/acceuil';
 import { getSavoirFaireContent } from '../api/savoirFaire';
 import { getMateriauxContent, toStoneMaterial } from '../api/materiaux';
 import { getRealisationsContent } from '../api/realisations';
@@ -16,6 +16,13 @@ import { getDevisSection, submitDevis, DEFAULT_DEVIS_SECTION } from '../api/devi
 import LuxuryLoader from '../components/LuxuryLoader';
 import MaterialCard from '../components/MaterialCard';
 import { useMaterials } from '../data/useMaterials';
+import {
+  getPourquoiChoisir,
+  DEFAULT_POURQUOI_CHOISIR,
+  DEFAULT_POURQUOI_CATEGORIES,
+  formatPourquoiMediaUrl,
+} from '../api/pourquoiChoisir';
+import { renderPourquoiCategorySvg } from '../components/PourquoiChoisirAdmin';
 import { useSeo, setJsonLd } from '../seo/useSeo';
 
 export default function HomePage() {
@@ -41,23 +48,46 @@ export default function HomePage() {
     stat2_label: 'Clients satisfaits',
     stat3_number: '15 ans',
     stat3_label: "d'expérience",
-    marquee_words: MARQUEE_WORDS
+    marquee_words: MARQUEE_WORDS,
+    features_bar: DEFAULT_FEATURES_BAR,
   });
 
   useEffect(() => {
     getAcceuilContent().then((data) => {
       if (data) {
-        setHomeContent((prev) => ({ ...prev, ...data }));
+        setHomeContent((prev) => ({
+          ...prev,
+          ...data,
+          features_bar:
+            Array.isArray(data.features_bar) && data.features_bar.length > 0
+              ? data.features_bar
+              : prev.features_bar,
+        }));
       }
     });
   }, []);
 
-  // Contenu Savoir-faire (depuis les tables savoir_faire_*)
+  // Contenu Pourquoi nous choisir (depuis la table pourquoi_choisir_sections)
+  const [pourquoiChoisir, setPourquoiChoisir] = useState(DEFAULT_POURQUOI_CHOISIR);
   const [savoirFaire, setSavoirFaire] = useState(null);
-  const [savoirFaireStatus, setSavoirFaireStatus] = useState('loading'); // 'loading' | 'ready' | 'error'
+  const [savoirFaireStatus, setSavoirFaireStatus] = useState('ready'); // 'loading' | 'ready' | 'error'
 
   useEffect(() => {
     let cancelled = false;
+    getPourquoiChoisir()
+      .then((data) => {
+        if (cancelled || !data) return;
+        setPourquoiChoisir((prev) => ({
+          ...prev,
+          ...data,
+          categories:
+            Array.isArray(data.categories) && data.categories.length > 0
+              ? data.categories
+              : prev.categories,
+        }));
+      })
+      .catch(() => {});
+
     getSavoirFaireContent()
       .then((data) => {
         if (cancelled) return;
@@ -65,7 +95,7 @@ export default function HomePage() {
         setSavoirFaireStatus('ready');
       })
       .catch(() => {
-        if (!cancelled) setSavoirFaireStatus('error');
+        if (!cancelled) setSavoirFaireStatus('ready');
       });
     return () => {
       cancelled = true;
@@ -499,42 +529,34 @@ export default function HomePage() {
         {/* ===== FEATURES BAR ===== */}
         <div className="features-bar" id="features">
           <div className="wrap features-grid">
-            <div className="feature-item">
-              <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-              </svg>
-              <div>
-                <b>Pierres naturelles</b>
-                <small>Qualité supérieure garantie</small>
+            {(Array.isArray(homeContent.features_bar) && homeContent.features_bar.length > 0
+              ? homeContent.features_bar
+              : DEFAULT_FEATURES_BAR
+            ).map((feat, idx) => (
+              <div key={idx} className="feature-item">
+                {feat.icon === 'shield' ? (
+                  <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  </svg>
+                ) : feat.icon === 'arrow' ? (
+                  <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                ) : feat.icon === 'clock' ? (
+                  <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <circle cx="12" cy="12" r="10" /><path d="M12 8v4l3 3" />
+                  </svg>
+                ) : (
+                  <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                )}
+                <div>
+                  <b>{feat.title}</b>
+                  <small>{feat.subtitle}</small>
+                </div>
               </div>
-            </div>
-            <div className="feature-item">
-              <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
-              <div>
-                <b>Savoir-faire</b>
-                <small>Une équipe d'experts à votre service</small>
-              </div>
-            </div>
-            <div className="feature-item">
-              <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-              <div>
-                <b>Livraison &amp; Pose</b>
-                <small>Partout au Maroc et à l'international</small>
-              </div>
-            </div>
-            <div className="feature-item">
-              <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <circle cx="12" cy="12" r="10" /><path d="M12 8v4l3 3" />
-              </svg>
-              <div>
-                <b>Engagement durable</b>
-                <small>Respect de la nature et des générations futures</small>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
@@ -555,136 +577,111 @@ export default function HomePage() {
         {/* ===== SAVOIR-FAIRE — "Pourquoi nous choisir" ===== */}
         <section className="sec sec-why" id="savoir-faire" data-label="Pourquoi nous choisir">
           <div className="wrap">
-            {savoirFaireStatus === 'loading' && (
-              <LuxuryLoader size={64} minHeight="160px" />
-            )}
+            <div className="why-grid">
+              {/* COLONNE 1 : TEXTE & STATS */}
+              <div className="why-text-col">
+                <div className="why-eyebrow rv">
+                  <span className="why-eyebrow-line" />
+                  <span>{pourquoiChoisir.eyebrow || 'POURQUOI NOUS CHOISIR ?'}</span>
+                </div>
 
-            {savoirFaireStatus === 'error' && (
-              <p className="lead" role="alert">
-                Impossible de charger cette section pour le moment. Veuillez réessayer plus tard.
-              </p>
-            )}
+                <h2 className="why-title rv d1">
+                  {pourquoiChoisir.title_line1 || "L'excellence"}
+                  <br />
+                  {pourquoiChoisir.title_line2 || 'au cœur de chaque projet.'}
+                </h2>
 
-            {savoirFaireStatus === 'ready' && (
-              <div className="why-grid">
-                {/* COLONNE 1 : TEXTE & STATS */}
-                <div className="why-text-col">
-                  <div className="why-eyebrow rv">
-                    <span className="why-eyebrow-line" />
-                    <span>POURQUOI NOUS CHOISIR ?</span>
+                <p className="why-desc rv d2">
+                  {pourquoiChoisir.description ||
+                    savoirFaire?.section?.description ||
+                    "Chez SUTRAVOMAR, nous ne vendons pas seulement des pierres, nous créons des espaces intemporels. Chaque projet est une rencontre entre la nature, l'architecture et votre vision."}
+                </p>
+
+                {/* 3 Chiffres clés */}
+                <div className="why-stats rv d2">
+                  <div className="why-stat-item">
+                    <b className="why-stat-num">
+                      {pourquoiChoisir.stat1_number || homeContent.stat1_number || '+500'}
+                    </b>
+                    <span className="why-stat-lbl">
+                      {pourquoiChoisir.stat1_label || homeContent.stat1_label || 'Projets réalisés'}
+                    </span>
                   </div>
-
-                  <h2 className="why-title rv d1">
-                    L'excellence<br />
-                    au cœur de chaque projet.
-                  </h2>
-
-                  <p className="why-desc rv d2">
-                    {savoirFaire?.section?.description || "Chez SUTRAVOMAR, nous ne vendons pas seulement des pierres, nous créons des espaces intemporels. Chaque projet est une rencontre entre la nature, l'architecture et votre vision."}
-                  </p>
-
-                  {/* 3 Chiffres clés */}
-                  <div className="why-stats rv d2">
-                    <div className="why-stat-item">
-                      <b className="why-stat-num">{counts.varieties ? `+${counts.varieties}` : (homeContent.stat1_number || '+500')}</b>
-                      <span className="why-stat-lbl">{homeContent.stat1_label || 'Projets réalisés'}</span>
-                    </div>
-                    <div className="why-stat-divider" />
-                    <div className="why-stat-item">
-                      <b className="why-stat-num">{counts.custom ? `${counts.custom}%` : (homeContent.stat2_number || '100%')}</b>
-                      <span className="why-stat-lbl">{homeContent.stat2_label || 'Clients satisfaits'}</span>
-                    </div>
-                    <div className="why-stat-divider" />
-                    <div className="why-stat-item">
-                      <b className="why-stat-num">{homeContent.stat3_number || '15 ans'}</b>
-                      <span className="why-stat-lbl">{homeContent.stat3_label || "D'expérience"}</span>
-                    </div>
+                  <div className="why-stat-divider" />
+                  <div className="why-stat-item">
+                    <b className="why-stat-num">
+                      {pourquoiChoisir.stat2_number || homeContent.stat2_number || '100%'}
+                    </b>
+                    <span className="why-stat-lbl">
+                      {pourquoiChoisir.stat2_label || homeContent.stat2_label || 'Clients satisfaits'}
+                    </span>
                   </div>
-
-                  <div className="why-btn-wrap rv d3">
-                    <a href="#materiaux" className="why-btn">
-                      <span>En savoir plus</span>
-                      <span className="why-btn-ar">→</span>
-                    </a>
+                  <div className="why-stat-divider" />
+                  <div className="why-stat-item">
+                    <b className="why-stat-num">
+                      {pourquoiChoisir.stat3_number || homeContent.stat3_number || '15 ans'}
+                    </b>
+                    <span className="why-stat-lbl">
+                      {pourquoiChoisir.stat3_label || homeContent.stat3_label || "D'expérience"}
+                    </span>
                   </div>
                 </div>
 
-                {/* COLONNE 2 : IMAGE ESCALIER MARBRE AVEC CITATION */}
-                <div className="why-img-col rv d1">
-                  <div className="why-img-card">
-                    <img
-                      src="/images/pourquoi-nous-choisir-escalier.jpg"
-                      alt="Escalier monumental en marbre avec éclairage LED sous chaque marche"
-                      className="why-img"
-                      loading="lazy"
-                    />
-                    <div className="why-quote-overlay">
-                      <p className="why-quote-text">
-                        La pierre<br />
-                        révèle le caractère<br />
-                        de vos espaces
-                      </p>
-                    </div>
-                  </div>
+                <div className="why-btn-wrap rv d3">
+                  <a href={pourquoiChoisir.button_link || '#materiaux'} className="why-btn">
+                    <span>{pourquoiChoisir.button_text || 'En savoir plus'}</span>
+                    <span className="why-btn-ar">→</span>
+                  </a>
                 </div>
+              </div>
 
-                {/* COLONNE 3 : 4 CATÉGORIES AVEC ICÔNES CIRCULAIRES */}
-                <div className="why-categories-col rv d2">
-                  <div className="why-cat-row">
-                    <div className="why-cat-icon-circle">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1v-9.5z" />
-                      </svg>
-                    </div>
-                    <div className="why-cat-label">
-                      <span>Maisons</span>
-                      <span>&amp; villas</span>
-                    </div>
-                  </div>
-
-                  <div className="why-cat-row">
-                    <div className="why-cat-icon-circle">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <path d="M7 21h10M12 3v4M3 11h18M6 21V11a6 6 0 0 1 12 0v10" />
-                      </svg>
-                    </div>
-                    <div className="why-cat-label">
-                      <span>Hôtels</span>
-                      <span>&amp; restaurants</span>
-                    </div>
-                  </div>
-
-                  <div className="why-cat-row">
-                    <div className="why-cat-icon-circle">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-                        <line x1="3" y1="6" x2="21" y2="6" />
-                        <path d="M16 10a4 4 0 0 1-8 0" />
-                      </svg>
-                    </div>
-                    <div className="why-cat-label">
-                      <span>Commerces</span>
-                      <span>&amp; boutiques</span>
-                    </div>
-                  </div>
-
-                  <div className="why-cat-row">
-                    <div className="why-cat-icon-circle">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                        <circle cx="9" cy="7" r="4" />
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                      </svg>
-                    </div>
-                    <div className="why-cat-label">
-                      <span>Espaces publics</span>
-                      <span>&amp; professionnels</span>
-                    </div>
+              {/* COLONNE 2 : IMAGE ESCALIER MARBRE AVEC CITATION */}
+              <div className="why-img-col rv d1">
+                <div className="why-img-card">
+                  <img
+                    src={
+                      formatPourquoiMediaUrl(pourquoiChoisir.image) ||
+                      '/images/pourquoi-nous-choisir-escalier.jpg'
+                    }
+                    alt={
+                      pourquoiChoisir.image_alt ||
+                      'Escalier monumental en marbre avec éclairage LED sous chaque marche'
+                    }
+                    className="why-img"
+                    loading="lazy"
+                  />
+                  <div className="why-quote-overlay">
+                    <p className="why-quote-text">
+                      {pourquoiChoisir.quote_line1 || 'La pierre'}
+                      <br />
+                      {pourquoiChoisir.quote_line2 || 'révèle le caractère'}
+                      <br />
+                      {pourquoiChoisir.quote_line3 || 'de vos espaces'}
+                    </p>
                   </div>
                 </div>
               </div>
-            )}
+
+              {/* COLONNE 3 : CATÉGORIES AVEC ICÔNES CIRCULAIRES */}
+              <div className="why-categories-col rv d2">
+                {(Array.isArray(pourquoiChoisir.categories) && pourquoiChoisir.categories.length > 0
+                  ? pourquoiChoisir.categories
+                  : DEFAULT_POURQUOI_CATEGORIES
+                )
+                  .filter((cat) => cat.is_active !== false)
+                  .map((cat, idx) => (
+                    <div key={cat.id || idx} className="why-cat-row">
+                      <div className="why-cat-icon-circle">
+                        {renderPourquoiCategorySvg(cat.icon)}
+                      </div>
+                      <div className="why-cat-label">
+                        <span>{cat.line1}</span>
+                        <span>{cat.line2}</span>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
           </div>
         </section>
 

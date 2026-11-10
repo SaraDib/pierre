@@ -1,5 +1,28 @@
 import { API_URL, BACKEND_URL } from './config';
 
+export const DEFAULT_FEATURES_BAR = [
+  {
+    icon: 'star',
+    title: 'Pierres naturelles',
+    subtitle: 'Qualité supérieure garantie',
+  },
+  {
+    icon: 'shield',
+    title: 'Savoir-faire',
+    subtitle: "Une équipe d'experts à votre service",
+  },
+  {
+    icon: 'arrow',
+    title: 'Livraison & Pose',
+    subtitle: "Partout au Maroc et à l'international",
+  },
+  {
+    icon: 'clock',
+    title: 'Engagement durable',
+    subtitle: 'Respect de la nature et des générations futures',
+  },
+];
+
 /**
  * Format media URL (ensures Laravel storage paths resolve to the backend host)
  */

@@ -451,20 +451,22 @@ export default function CatalogueAdmin({ token, onCountChange }) {
       {/* Navigation par sous-onglets */}
       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '22px' }}>
         <button type="button" onClick={() => setActiveTab('cards')} style={tabBtnStyle(activeTab === 'cards')}>
-          <Layers size={15} /> Cartes & Pages Matériaux ({items.length})
+          <Layers size={15} /> Matériaux ({items.length})
         </button>
         <button type="button" onClick={() => setActiveTab('section')} style={tabBtnStyle(activeTab === 'section')}>
           <Type size={15} /> En-tête de la section
         </button>
+        {/* Commenté temporairement :
         <button type="button" onClick={() => setActiveTab('svg')} style={tabBtnStyle(activeTab === 'svg')}>
           Textures SVG (Savoir-faire / Arche)
         </button>
+        */}
       </div>
 
       {message && <Notice kind="success">{message}</Notice>}
       {error && <Notice kind="error">{error}</Notice>}
 
-      {activeTab === 'svg' && <MateriauxAdmin token={token} />}
+      {/* {activeTab === 'svg' && <MateriauxAdmin token={token} />} */}
 
       {activeTab === 'section' && (
         <form onSubmit={handleSaveSection} style={cardStyle}>
@@ -527,7 +529,7 @@ export default function CatalogueAdmin({ token, onCountChange }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
               <div>
                 <h2 style={{ margin: 0, fontSize: '20px', color: '#f7f3ea', fontFamily: 'Georgia, serif', fontWeight: 400 }}>
-                  Catalogue des matériaux
+                  Matériaux
                 </h2>
                 <p style={{ margin: '6px 0 0', fontSize: '13px', color: '#a0988c', maxWidth: '640px', lineHeight: 1.6 }}>
                   Chaque matériau crée automatiquement une carte dans le carrousel « Nos matériaux » de l'accueil, une carte dans la grille{' '}

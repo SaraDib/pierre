@@ -40,10 +40,12 @@ import {
   getAcceuilContent,
   updateAcceuilContent,
   resetAcceuilContent,
-  formatMediaUrl
+  formatMediaUrl,
+  DEFAULT_FEATURES_BAR
 } from '../api/acceuil';
 import SavoirFaireAdmin from '../components/SavoirFaireAdmin';
 import MateriauxAdmin from '../components/MateriauxAdmin';
+import PourquoiChoisirAdmin from '../components/PourquoiChoisirAdmin';
 import CatalogueAdmin from '../components/CatalogueAdmin';
 import RealisationsAdmin from '../components/RealisationsAdmin';
 import MethodeAdmin from '../components/MethodeAdmin';
@@ -53,6 +55,7 @@ import DevisAdmin from '../components/DevisAdmin';
 import { useCompany } from '../context/CompanyContext';
 import { formatCompanyMediaUrl } from '../api/company';
 import { getMateriauxAdmin } from '../api/materiaux';
+import { getPourquoiChoisirAdmin } from '../api/pourquoiChoisir';
 import { getCatalogueAdmin } from '../api/catalogue';
 import { getRealisationsAdmin } from '../api/realisations';
 import { getMethodeAdmin } from '../api/methode';
@@ -71,6 +74,7 @@ export default function AdminDashboardPage() {
   const [apiUserData, setApiUserData] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [savoirFaireCount, setSavoirFaireCount] = useState(null);
+  const [pourquoiCount, setPourquoiCount] = useState(null);
   const [materiauxCount, setMateriauxCount] = useState(null);
   const [realisationsCount, setRealisationsCount] = useState(null);
   const [methodeCount, setMethodeCount] = useState(null);
@@ -97,7 +101,8 @@ export default function AdminDashboardPage() {
     stat2_label: 'Sur mesure',
     stat3_number: 'Maroc',
     stat3_label: 'Livraison & pose',
-    marquee_words: []
+    marquee_words: [],
+    features_bar: DEFAULT_FEATURES_BAR
   });
   const [marqueeInput, setMarqueeInput] = useState('Pierre de Taza, Marbre, Granit, Travertin, Ardoise, Sur mesure, Pose & livraison');
   const [savingAcceuil, setSavingAcceuil] = useState(false);
@@ -116,6 +121,7 @@ export default function AdminDashboardPage() {
       icon: Home,
       badge: 'Éditeur & Stats'
     },
+    /* Commenté temporairement :
     {
       id: 'savoir-faire',
       label: 'Savoir-faire',
@@ -130,11 +136,19 @@ export default function AdminDashboardPage() {
       icon: Layers,
       badge: materiauxCount === null ? 'Matériaux' : `${materiauxCount} roches`
     },
+    */
+    {
+      id: 'pourquoi-choisir',
+      label: 'Pourquoi nous choisir',
+      path: '/#savoir-faire',
+      icon: Sparkles,
+      badge: pourquoiCount === null ? '4 domaines' : `${pourquoiCount} domaines`
+    },
     {
       id: 'catalogue',
-      label: 'Catalogue matériaux',
+      label: 'Matériaux',
       path: '/detailsmateriaux',
-      icon: LayoutGrid,
+      icon: Layers,
       badge: catalogueCount === null ? 'Cartes & pages' : `${catalogueCount} matériaux`
     },
     {
@@ -193,7 +207,14 @@ export default function AdminDashboardPage() {
     try {
       const data = await getAcceuilContent();
       if (data) {
-        setAcceuilForm((prev) => ({ ...prev, ...data }));
+        setAcceuilForm((prev) => ({
+          ...prev,
+          ...data,
+          features_bar:
+            Array.isArray(data.features_bar) && data.features_bar.length > 0
+              ? data.features_bar
+              : DEFAULT_FEATURES_BAR,
+        }));
         if (Array.isArray(data.marquee_words)) {
           setMarqueeInput(data.marquee_words.join(', '));
         }
@@ -225,6 +246,14 @@ export default function AdminDashboardPage() {
         const list = Array.isArray(res) ? res : res?.items;
         if (Array.isArray(list)) {
           setCatalogueCount(list.length);
+        }
+      })
+      .catch(() => {});
+
+    getPourquoiChoisirAdmin(token)
+      .then((res) => {
+        if (Array.isArray(res?.categories)) {
+          setPourquoiCount(res.categories.length);
         }
       })
       .catch(() => {});
@@ -272,7 +301,7 @@ export default function AdminDashboardPage() {
     try {
       const formData = new FormData();
       Object.keys(acceuilForm).forEach((key) => {
-        if (key !== 'marquee_words' && key !== 'arch_image') {
+        if (key !== 'marquee_words' && key !== 'features_bar' && key !== 'arch_image') {
           formData.append(key, acceuilForm[key] ?? '');
         }
       });
@@ -284,6 +313,16 @@ export default function AdminDashboardPage() {
       // Format marquee words array
       const words = marqueeInput.split(',').map((w) => w.trim()).filter(Boolean);
       formData.append('marquee_words', JSON.stringify(words));
+
+      // Format features_bar array
+      formData.append(
+        'features_bar',
+        JSON.stringify(
+          Array.isArray(acceuilForm.features_bar) && acceuilForm.features_bar.length > 0
+            ? acceuilForm.features_bar
+            : DEFAULT_FEATURES_BAR
+        )
+      );
 
       // Append files if uploaded
       if (videoFile) {
@@ -1397,6 +1436,128 @@ export default function AdminDashboardPage() {
                       })}
                     </div>
                   </div>
+
+                  {/* CARD 6: BARRE DES 4 ENGAGEMENTS (FEATURES BAR SOUS LE HERO) */}
+                  <div style={{
+                    gridColumn: '1 / -1',
+                    background: 'rgba(26, 24, 22, 0.85)',
+                    border: '1px solid rgba(197, 160, 89, 0.22)',
+                    borderRadius: '14px',
+                    padding: '24px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '18px' }}>
+                      <Shield size={18} color="#c5a059" />
+                      <h2 style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: '18px', color: '#f7f3ea', margin: 0 }}>
+                        6. Barre des 4 Engagements (Sous le Hero)
+                      </h2>
+                    </div>
+
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+                      gap: '16px'
+                    }}>
+                      {(Array.isArray(acceuilForm.features_bar) && acceuilForm.features_bar.length > 0
+                        ? acceuilForm.features_bar
+                        : DEFAULT_FEATURES_BAR
+                      ).map((feat, idx) => {
+                        const updateFeatureItem = (field, val) => {
+                          const base =
+                            Array.isArray(acceuilForm.features_bar) && acceuilForm.features_bar.length > 0
+                              ? [...acceuilForm.features_bar]
+                              : [...DEFAULT_FEATURES_BAR];
+                          base[idx] = { ...base[idx], [field]: val };
+                          setAcceuilForm({ ...acceuilForm, features_bar: base });
+                        };
+
+                        return (
+                          <div
+                            key={idx}
+                            style={{
+                              padding: '16px',
+                              background: 'rgba(17, 16, 15, 0.65)',
+                              border: '1px solid rgba(255, 255, 255, 0.08)',
+                              borderRadius: '10px',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '10px'
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <span style={{ fontSize: '11px', fontWeight: 700, color: '#c5a059', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                                Engagement #{idx + 1}
+                              </span>
+                              <select
+                                value={feat.icon || 'star'}
+                                onChange={(e) => updateFeatureItem('icon', e.target.value)}
+                                style={{
+                                  background: 'rgba(26, 24, 22, 0.95)',
+                                  border: '1px solid rgba(255, 255, 255, 0.14)',
+                                  borderRadius: '6px',
+                                  padding: '4px 8px',
+                                  color: '#f7f3ea',
+                                  fontSize: '11px',
+                                  outline: 'none'
+                                }}
+                              >
+                                <option value="star">★ Étoile</option>
+                                <option value="shield">🛡 Bouclier</option>
+                                <option value="arrow">→ Flèche</option>
+                                <option value="clock">🕒 Horloge</option>
+                              </select>
+                            </div>
+
+                            <div>
+                              <label style={{ display: 'block', fontSize: '10px', textTransform: 'uppercase', color: '#a0988c', marginBottom: '4px', fontWeight: 600 }}>
+                                Titre
+                              </label>
+                              <input
+                                type="text"
+                                value={feat.title || ''}
+                                onChange={(e) => updateFeatureItem('title', e.target.value)}
+                                placeholder="Ex: Pierres naturelles"
+                                style={{
+                                  width: '100%',
+                                  boxSizing: 'border-box',
+                                  background: 'rgba(17, 16, 15, 0.9)',
+                                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                                  borderRadius: '8px',
+                                  padding: '9px 12px',
+                                  color: '#f7f3ea',
+                                  fontWeight: 600,
+                                  fontSize: '13px',
+                                  outline: 'none'
+                                }}
+                              />
+                            </div>
+
+                            <div>
+                              <label style={{ display: 'block', fontSize: '10px', textTransform: 'uppercase', color: '#a0988c', marginBottom: '4px', fontWeight: 600 }}>
+                                Sous-titre
+                              </label>
+                              <input
+                                type="text"
+                                value={feat.subtitle || ''}
+                                onChange={(e) => updateFeatureItem('subtitle', e.target.value)}
+                                placeholder="Ex: Qualité supérieure garantie"
+                                style={{
+                                  width: '100%',
+                                  boxSizing: 'border-box',
+                                  background: 'rgba(17, 16, 15, 0.9)',
+                                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                                  borderRadius: '8px',
+                                  padding: '9px 12px',
+                                  color: '#a0988c',
+                                  fontSize: '12px',
+                                  outline: 'none'
+                                }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Submit Action Bar */}
@@ -1447,17 +1608,23 @@ export default function AdminDashboardPage() {
             </div>
           )}
 
-          {/* SECTION 2: SAVOIR-FAIRE */}
+          {/* SECTION 2: SAVOIR-FAIRE & MATÉRIAUX (ANCIENS - COMMENTÉS TEMPORAIREMENT) */}
+          {/*
           {activeSection === 'savoir-faire' && (
             <SavoirFaireAdmin token={token} onCountChange={setSavoirFaireCount} />
           )}
 
-          {/* SECTION 3: MATÉRIAUX */}
           {activeSection === 'materiaux' && (
             <MateriauxAdmin token={token} onCountChange={setMateriauxCount} />
           )}
+          */}
 
-          {/* SECTION 3b: CATALOGUE MATÉRIAUX (carrousel, /detailsmateriaux, pages détail) */}
+          {/* SECTION 2: POURQUOI NOUS CHOISIR ? */}
+          {activeSection === 'pourquoi-choisir' && (
+            <PourquoiChoisirAdmin token={token} onCountChange={setPourquoiCount} />
+          )}
+
+          {/* SECTION 3: MATÉRIAUX (carrousel, /detailsmateriaux, pages détail) */}
           {activeSection === 'catalogue' && (
             <CatalogueAdmin token={token} onCountChange={setCatalogueCount} />
           )}
