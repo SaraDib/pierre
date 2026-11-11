@@ -1,30 +1,31 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import MaterialCard from '../components/MaterialCard';
 import LuxuryLoader from '../components/LuxuryLoader';
-import { useMaterials, getMaterialTypes } from '../data/useMaterials';
+import { useMaterials, categoryPath } from '../data/useMaterials';
 import { useSeo } from '../seo/useSeo';
 import './MaterialsPages.css';
 
 export default function MaterialsPage() {
-  const [filter, setFilter] = useState('all');
-  const { materials, section, loading, error, reload } = useMaterials();
-  const materialTypes = getMaterialTypes(materials);
+  const { categories, materials, section, loading, error, reload } = useMaterials();
 
   useSeo({
     title: 'Nos Matériaux | Marbre, Granit, Onyx, Travertin & Pierre naturelle – SUTRAVOMAR',
     description:
       section?.description ||
-      'Découvrez notre sélection de matériaux nobles : marbre Calacatta, granit Noir Absolu, pierre naturelle, onyx et travertin. Fiches techniques et devis sur mesure.',
+      'Découvrez nos familles de matériaux nobles : marbre, granit, pierre naturelle, onyx et travertin. Choisissez un type de pierre pour explorer toutes ses variétés.',
     path: '/detailsmateriaux',
   });
 
-  const visible = filter === 'all' ? materials : materials.filter((m) => m.type === filter);
+  const displayList = categories.length > 0 ? categories : materials;
 
   return (
     <main>
       <section className="mx-hero">
         <div className="wrap">
+          <Link to="/" className="mx-back">
+            ← Retour à l'accueil
+          </Link>
           <div className="mx-eyebrow">{section?.eyebrow || 'NOS MATÉRIAUX'}</div>
           <h1>
             {section?.title || 'Nos matériaux'}{' '}
@@ -32,7 +33,7 @@ export default function MaterialsPage() {
           </h1>
           <p>
             {section?.description ||
-              'Marbre, granit, pierre naturelle, onyx, travertin… Des matériaux nobles, soigneusement sélectionnés pour leur beauté, leur résistance et leur durabilité. Choisissez une pierre pour découvrir sa fiche détaillée.'}
+              'Marbre, granit, pierre naturelle, onyx, travertin… Sélectionnez une famille de pierre pour découvrir toutes ses variétés et consulter leurs fiches techniques.'}
           </p>
         </div>
       </section>
@@ -50,38 +51,47 @@ export default function MaterialsPage() {
             </div>
           ) : (
             <>
-              <div className="mx-tabs" role="tablist" aria-label="Filtrer par type de matériau">
-                {['all', ...materialTypes].map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    role="tab"
-                    aria-selected={filter === t}
-                    className={`mx-tab ${filter === t ? 'active' : ''}`}
-                    onClick={() => setFilter(t)}
-                  >
-                    {t === 'all' ? 'Tous' : t}
-                  </button>
-                ))}
-              </div>
+              {categories.length > 0 && (
+                <div className="mx-tabs" role="navigation" aria-label="Accès rapide par type de matériau">
+                  <span className="mx-tab active">Tous les types ({categories.length})</span>
+                  {categories.map((cat) => (
+                    <Link
+                      key={cat.id || cat.slug}
+                      to={categoryPath(cat)}
+                      className="mx-tab"
+                      style={{ textDecoration: 'none' }}
+                    >
+                      {cat.name} ({cat.materials_count || 0})
+                    </Link>
+                  ))}
+                </div>
+              )}
 
-              {visible.length ? (
+              {displayList.length ? (
                 <div className="mx-grid">
-                  {visible.map((m) => (
-                    <MaterialCard key={m.id || m.slug} material={m} layout="grid" />
+                  {displayList.map((item) => (
+                    <MaterialCard
+                      key={`${item.isCategory ? 'cat' : 'mat'}-${item.id || item.slug}`}
+                      material={item}
+                      layout="grid"
+                    />
                   ))}
                 </div>
               ) : (
-                <p className="mx-empty">Aucun matériau dans cette catégorie.</p>
+                <p className="mx-empty">Aucun matériau disponible pour le moment.</p>
               )}
             </>
           )}
 
-          <div className="mx-cta" style={{ marginTop: 56, marginBottom: 0 }}>
+          <div className="mx-cta" style={{ marginTop: 56, marginBottom: 24 }}>
             <Link to="/#devis" className="btn btn-ochre">
               Demander un devis <span className="ar">→</span>
             </Link>
           </div>
+
+          <Link to="/" className="mx-back-bottom">
+            ← Retour à l'accueil
+          </Link>
         </div>
       </section>
     </main>

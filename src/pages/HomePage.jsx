@@ -28,7 +28,8 @@ import { useSeo, setJsonLd } from '../seo/useSeo';
 export default function HomePage() {
   const { company } = useCompany();
   useSeo({ path: '/' });
-  const { materials, section: matSection } = useMaterials();
+  const { categories, materials, section: matSection } = useMaterials();
+  const carouselItems = categories.length > 0 ? categories : materials;
   // Contenu d'accueil dynamique (depuis la table acceuil)
   const [homeContent, setHomeContent] = useState({
     eyebrow: 'SUTRAVOMAR STONE LUXE',
@@ -721,8 +722,8 @@ export default function HomePage() {
             {/* DROITE : 5 DALLES DE PIERRE VERTICALES + FLÈCHES */}
             <div className="mat-right-col rv d1">
               <div className="mat-slabs-container" ref={matCardsRef}>
-                {materials.map((m) => (
-                  <MaterialCard key={m.id} material={m} layout="carousel" />
+                {carouselItems.map((m) => (
+                  <MaterialCard key={`${m.isCategory ? 'cat' : 'mat'}-${m.id}`} material={m} layout="carousel" />
                 ))}
               </div>
 

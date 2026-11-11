@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getCatalogueMaterialBySlug } from '../api/catalogue';
+import { getCatalogueMaterial } from '../api/catalogue';
 import { normalizeMaterial, materialPath } from '../data/useMaterials';
 import LuxuryLoader from '../components/LuxuryLoader';
 import { useSeo, SITE_URL } from '../seo/useSeo';
@@ -16,24 +16,26 @@ const SPEC_LABELS = [
 ];
 
 export default function MaterialDetailPage() {
-  const { slug } = useParams();
+  const { typeSlug, slug } = useParams();
   const [material, setMaterial] = useState(null);
+  const [categoryInfo, setCategoryInfo] = useState(null);
   const [adjacent, setAdjacent] = useState({ prev: null, next: null });
   const [status, setStatus] = useState('loading'); // 'loading' | 'ready' | 'not_found' | 'error'
 
   const loadMaterial = useCallback(() => {
-    if (!slug) {
+    if (!typeSlug || !slug) {
       setStatus('not_found');
       return;
     }
     setStatus('loading');
-    getCatalogueMaterialBySlug(slug)
-      .then(({ material: raw, prev, next }) => {
+    getCatalogueMaterial(typeSlug, slug)
+      .then(({ material: raw, category, prev, next }) => {
         if (!raw) {
           setStatus('not_found');
           return;
         }
         setMaterial(normalizeMaterial(raw));
+        setCategoryInfo(category || raw.category || { slug: typeSlug, name: raw.type || raw.name });
         setAdjacent({ prev, next });
         setStatus('ready');
       })
@@ -44,7 +46,7 @@ export default function MaterialDetailPage() {
           setStatus('error');
         }
       });
-  }, [slug]);
+  }, [typeSlug, slug]);
 
   useEffect(() => {
     loadMaterial();
@@ -53,7 +55,7 @@ export default function MaterialDetailPage() {
   useSeo(
     material
       ? {
-          title: `${material.name} ${material.variant || ''} | Nos matériaux – SUTRAVOMAR`.trim(),
+          title: `${material.name} ${material.variant || ''} | ${categoryInfo?.name || 'Matériaux'} – SUTRAVOMAR`.trim(),
           description: material.description,
           path: materialPath(material),
           image: (material.hero || material.image)?.startsWith('http')
@@ -94,14 +96,22 @@ export default function MaterialDetailPage() {
 
   const { prev, next } = adjacent;
   const heroSrc = material.hero || material.image;
+  const parentSlug = categoryInfo?.slug || typeSlug;
+  const parentName = categoryInfo?.name || material.type || 'matériaux';
 
   return (
     <main>
       <section className="mx-hero">
         <div className="wrap">
-          <Link to="/detailsmateriaux" className="mx-back">
-            ← Retour aux matériaux
-          </Link>
+          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '8px' }}>
+            <Link to="/detailsmateriaux" className="mx-back" style={{ marginBottom: 0 }}>
+              Matériaux
+            </Link>
+            <span style={{ opacity: 0.4 }}>/</span>
+            <Link to={`/detailsmateriaux/${parentSlug}`} className="mx-back" style={{ marginBottom: 0 }}>
+              ← Toutes les variétés de {parentName}
+            </Link>
+          </div>
           <div className="mx-eyebrow">{material.type}</div>
           <h1>
             {material.name} {material.variant && <em>{material.variant}</em>}
@@ -111,18 +121,23 @@ export default function MaterialDetailPage() {
 
       <section className="mx-body">
         <div className="wrap">
-          {heroSrc && (
-            <div className="mx-detail-hero">
-              <img
-                src={heroSrc}
-                alt={`${material.name} ${material.variant || ''} – vue d'ensemble`.trim()}
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                  if (material.fallbackGradient) {
-                    e.currentTarget.parentElement.style.background = material.fallbackGradient;
-                  }
-                }}
-              />
+          {(heroSrc || material.fallbackGradient) && (
+            <div
+              className="mx-detail-hero"
+              style={!heroSrc && material.fallbackGradient ? { background: material.fallbackGradient } : undefined}
+            >
+              {heroSrc && (
+                <img
+                  src={heroSrc}
+                  alt={`${material.name} ${material.variant || ''} – vue d'ensemble`.trim()}
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    if (material.fallbackGradient) {
+                      e.currentTarget.parentElement.style.background = material.fallbackGradient;
+                    }
+                  }}
+                />
+              )}
             </div>
           )}
 
@@ -173,18 +188,18 @@ export default function MaterialDetailPage() {
             </>
           )}
 
-          <nav className="mx-pager" aria-label="Navigation entre matériaux">
+          <nav className="mx-pager" aria-label={`Autres variétés de ${parentName}`}>
             {prev && (
-              <Link to={materialPath(prev)} className="prev">
-                <small>← Matériau précédent</small>
+              <Link to={`/detailsmateriaux/${parentSlug}/${prev.slug}`} className="prev">
+                <small>← Variété précédente ({parentName})</small>
                 <span>
                   {prev.name} {prev.variant}
                 </span>
               </Link>
             )}
             {next && (
-              <Link to={materialPath(next)} className="next">
-                <small>Matériau suivant →</small>
+              <Link to={`/detailsmateriaux/${parentSlug}/${next.slug}`} className="next">
+                <small>Variété suivante ({parentName}) →</small>
                 <span>
                   {next.name} {next.variant}
                 </span>
@@ -192,8 +207,8 @@ export default function MaterialDetailPage() {
             )}
           </nav>
 
-          <Link to="/detailsmateriaux" className="mx-back-bottom">
-            ← Retour aux matériaux
+          <Link to={`/detailsmateriaux/${parentSlug}`} className="mx-back-bottom">
+            ← Retour aux variétés de {parentName}
           </Link>
         </div>
       </section>

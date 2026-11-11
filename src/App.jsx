@@ -6,6 +6,7 @@ import FloatingButtons from './components/FloatingButtons';
 import HomePage from './pages/HomePage';
 import RealisationsPage from './pages/RealisationsPage';
 import MaterialsPage from './pages/MaterialsPage';
+import MaterialTypePage from './pages/MaterialTypePage';
 import MaterialDetailPage from './pages/MaterialDetailPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
@@ -45,7 +46,8 @@ function AppContent() {
         <Route path="/" element={<HomePage />} />
         <Route path="/realisations" element={<RealisationsPage />} />
         <Route path="/detailsmateriaux" element={<MaterialsPage />} />
-        <Route path="/detailsmateriaux/:slug" element={<MaterialDetailPage />} />
+        <Route path="/detailsmateriaux/:typeSlug" element={<MaterialTypePage />} />
+        <Route path="/detailsmateriaux/:typeSlug/:slug" element={<MaterialDetailPage />} />
         <Route path="/admin/login" element={<AdminLoginPage />} />
         <Route
           path="/admin"

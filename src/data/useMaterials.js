@@ -1,6 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
-import { getCatalogueMateriaux } from '../api/catalogue';
+import { getCatalogueCategories, getCatalogueMateriaux } from '../api/catalogue';
 import { formatMediaUrl } from '../api/acceuil';
+
+export const normalizeCategory = (c) => {
+  if (!c) return null;
+  return {
+    ...c,
+    isCategory: true,
+    variant: c.display_subtitle || c.subtitle || `${c.materials_count || 0} variétés`,
+    image: formatMediaUrl(c.image),
+    hero: c.hero ? formatMediaUrl(c.hero) : null,
+  };
+};
 
 export const normalizeMaterial = (m) => {
   if (!m) return null;
@@ -20,10 +31,10 @@ export const normalizeMaterial = (m) => {
 };
 
 /**
- * Hook de chargement des matériaux depuis le backend (/api/catalogue-materiaux).
- * Recharge les données fraîches au montage pour refléter immédiatement les modifications admin.
+ * Hook de chargement des types de matériaux (/api/catalogue-categories) et des variétés (/api/catalogue-materiaux).
  */
 export function useMaterials() {
+  const [categories, setCategories] = useState([]);
   const [materials, setMaterials] = useState([]);
   const [section, setSection] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -32,10 +43,13 @@ export function useMaterials() {
   const load = useCallback(() => {
     setLoading(true);
     setError(null);
-    return getCatalogueMateriaux()
-      .then(({ items, section: sec }) => {
-        setMaterials((items || []).map(normalizeMaterial));
-        if (sec) setSection(sec);
+    return Promise.all([getCatalogueCategories(), getCatalogueMateriaux()])
+      .then(([catRes, matRes]) => {
+        setCategories((catRes.items || []).map(normalizeCategory));
+        setMaterials((matRes.items || []).map(normalizeMaterial));
+        if (catRes.section || matRes.section) {
+          setSection(catRes.section || matRes.section);
+        }
       })
       .catch((err) => {
         setError(err.message || 'Échec du chargement des matériaux');
@@ -49,11 +63,21 @@ export function useMaterials() {
     load();
   }, [load]);
 
-  return { materials, section, loading, error, reload: load };
+  return { categories, materials, section, loading, error, reload: load };
 }
 
-/** Chemin de la page d'un matériau */
-export const materialPath = (material) => `/detailsmateriaux/${material.slug}`;
+/** Chemin de la page d'un type de matériau (ex: /detailsmateriaux/marbre) */
+export const categoryPath = (category) => `/detailsmateriaux/${category.slug}`;
+
+/** Chemin de la fiche détail d'une variété (ex: /detailsmateriaux/marbre/marbre-calacatta) */
+export const materialPath = (material) => {
+  if (!material) return '/detailsmateriaux';
+  if (material.isCategory) return categoryPath(material);
+  const catSlug = material.category?.slug || material.category_slug;
+  return catSlug
+    ? `/detailsmateriaux/${catSlug}/${material.slug}`
+    : `/detailsmateriaux/${material.slug}`;
+};
 
 export const getMaterialBySlug = (list, slug) => list.find((m) => m.slug === slug) || null;
 
