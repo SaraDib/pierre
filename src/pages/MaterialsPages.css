@@ -124,14 +124,22 @@
 }
 
 .mx-detail-hero {
-  aspect-ratio: 16 / 7;
+  width: 100%;
+  max-width: 1040px;
+  height: 480px;
   border-radius: 14px;
   overflow: hidden;
-  background: #ddd;
-  margin-bottom: 48px;
+  margin: 0 auto 48px auto;
 }
 
-.mx-detail-hero img,
+.mx-detail-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  border-radius: 14px;
+  display: block;
+}
+
 .mx-gallery-item img {
   width: 100%;
   height: 100%;

@@ -439,7 +439,7 @@ export default function HomePage() {
   // Scroll mat cards
   const scrollMatCards = (dir) => {
     if (matCardsRef.current) {
-      matCardsRef.current.scrollBy({ left: dir * 220, behavior: 'smooth' });
+      matCardsRef.current.scrollBy({ left: dir * 300, behavior: 'smooth' });
     }
   };
 

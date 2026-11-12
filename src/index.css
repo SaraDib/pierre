@@ -1336,7 +1336,7 @@ header nav a.active::after {
   display: block;
   position: relative;
   overflow: hidden;
-  aspect-ratio: 124 / 256;
+  aspect-ratio: 160 / 256;
   border-radius: 14px;
   cursor: pointer;
   color: #fff;
@@ -1402,8 +1402,8 @@ header nav a.active::after {
 
 /* Contexte carrousel : largeur fixe (hauteur = ratio) */
 .material-card--carousel {
-  flex: 0 0 124px;
-  width: 124px;
+  flex: 0 0 190px;
+  width: 190px;
   min-width: 0;
 }
 
