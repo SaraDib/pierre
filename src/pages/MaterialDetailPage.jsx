@@ -21,6 +21,7 @@ export default function MaterialDetailPage() {
   const [categoryInfo, setCategoryInfo] = useState(null);
   const [adjacent, setAdjacent] = useState({ prev: null, next: null });
   const [status, setStatus] = useState('loading'); // 'loading' | 'ready' | 'not_found' | 'error'
+  const [lightboxIndex, setLightboxIndex] = useState(null);
 
   const loadMaterial = useCallback(() => {
     if (!typeSlug || !slug) {
@@ -49,8 +50,54 @@ export default function MaterialDetailPage() {
   }, [typeSlug, slug]);
 
   useEffect(() => {
+    setLightboxIndex(null);
     loadMaterial();
   }, [loadMaterial]);
+
+  // Build unified list of photos (hero + gallery) for the lightbox
+  const lightboxPhotos = React.useMemo(() => {
+    if (!material) return [];
+    const list = [];
+    const mainSrc = material.hero || material.image;
+    const fullTitle = `${material.name} ${material.variant || ''}`.trim();
+    if (mainSrc) {
+      list.push({
+        src: mainSrc,
+        alt: `${fullTitle} – vue d'ensemble`,
+      });
+    }
+    if (Array.isArray(material.gallery)) {
+      material.gallery.forEach((g, idx) => {
+        if (g?.src) {
+          list.push({
+            src: g.src,
+            alt: g.alt || `${fullTitle} – photo ${idx + 1}`,
+          });
+        }
+      });
+    }
+    return list;
+  }, [material]);
+
+  useEffect(() => {
+    if (lightboxIndex === null) return undefined;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setLightboxIndex(null);
+      } else if (e.key === 'ArrowRight' && lightboxPhotos.length > 1) {
+        setLightboxIndex((prevIdx) => (prevIdx + 1) % lightboxPhotos.length);
+      } else if (e.key === 'ArrowLeft' && lightboxPhotos.length > 1) {
+        setLightboxIndex((prevIdx) => (prevIdx - 1 + lightboxPhotos.length) % lightboxPhotos.length);
+      }
+    };
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [lightboxIndex, lightboxPhotos.length]);
 
   useSeo(
     material
@@ -123,20 +170,39 @@ export default function MaterialDetailPage() {
         <div className="wrap">
           {(heroSrc || material.fallbackGradient) && (
             <div
-              className="mx-detail-hero"
+              className={`mx-detail-hero${heroSrc ? ' is-clickable' : ''}`}
               style={!heroSrc && material.fallbackGradient ? { background: material.fallbackGradient } : undefined}
+              onClick={heroSrc ? () => setLightboxIndex(0) : undefined}
+              role={heroSrc ? 'button' : undefined}
+              tabIndex={heroSrc ? 0 : undefined}
+              aria-label={heroSrc ? 'Agrandir la photo principale' : undefined}
+              onKeyDown={
+                heroSrc
+                  ? (e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setLightboxIndex(0);
+                      }
+                    }
+                  : undefined
+              }
             >
               {heroSrc && (
-                <img
-                  src={heroSrc}
-                  alt={`${material.name} ${material.variant || ''} – vue d'ensemble`.trim()}
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    if (material.fallbackGradient) {
-                      e.currentTarget.parentElement.style.background = material.fallbackGradient;
-                    }
-                  }}
-                />
+                <>
+                  <img
+                    src={heroSrc}
+                    alt={`${material.name} ${material.variant || ''} – vue d'ensemble`.trim()}
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      if (material.fallbackGradient) {
+                        e.currentTarget.parentElement.style.background = material.fallbackGradient;
+                      }
+                    }}
+                  />
+                  <span className="mx-zoom-badge" aria-hidden="true">
+                    ⤢ Agrandir
+                  </span>
+                </>
               )}
             </div>
           )}
@@ -175,15 +241,35 @@ export default function MaterialDetailPage() {
             <>
               <h2 className="mx-h2">Galerie</h2>
               <div className="mx-gallery">
-                {material.gallery.map((g, idx) => (
-                  <figure className="mx-gallery-item" key={`${g.src}-${idx}`} style={{ margin: 0 }}>
-                    <img
-                      src={g.src}
-                      alt={g.alt || `${material.name} ${material.variant || ''} – photo ${idx + 1}`.trim()}
-                      loading="lazy"
-                    />
-                  </figure>
-                ))}
+                {material.gallery.map((g, idx) => {
+                  const photoIdx = (heroSrc ? 1 : 0) + idx;
+                  return (
+                    <figure
+                      className="mx-gallery-item is-clickable"
+                      key={`${g.src}-${idx}`}
+                      style={{ margin: 0 }}
+                      onClick={() => setLightboxIndex(photoIdx)}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Agrandir la photo ${idx + 1} de la galerie`}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          setLightboxIndex(photoIdx);
+                        }
+                      }}
+                    >
+                      <img
+                        src={g.src}
+                        alt={g.alt || `${material.name} ${material.variant || ''} – photo ${idx + 1}`.trim()}
+                        loading="lazy"
+                      />
+                      <span className="mx-zoom-badge" aria-hidden="true">
+                        ⤢
+                      </span>
+                    </figure>
+                  );
+                })}
               </div>
             </>
           )}
@@ -212,6 +298,74 @@ export default function MaterialDetailPage() {
           </Link>
         </div>
       </section>
+
+      {lightboxIndex !== null && lightboxPhotos[lightboxIndex] && (
+        <div
+          className="mx-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Aperçu de la photo en plein écran"
+          onClick={() => setLightboxIndex(null)}
+        >
+          <button
+            type="button"
+            className="mx-lightbox-close"
+            onClick={(e) => {
+              e.stopPropagation();
+              setLightboxIndex(null);
+            }}
+            aria-label="Fermer l'aperçu"
+            title="Fermer (Échap)"
+          >
+            ✕
+          </button>
+
+          {lightboxPhotos.length > 1 && (
+            <button
+              type="button"
+              className="mx-lightbox-nav prev"
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxIndex((lightboxIndex - 1 + lightboxPhotos.length) % lightboxPhotos.length);
+              }}
+              aria-label="Photo précédente"
+              title="Photo précédente (←)"
+            >
+              ‹
+            </button>
+          )}
+
+          <figure className="mx-lightbox-figure" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={lightboxPhotos[lightboxIndex].src}
+              alt={lightboxPhotos[lightboxIndex].alt}
+            />
+            <figcaption className="mx-lightbox-caption">
+              <span>{lightboxPhotos[lightboxIndex].alt}</span>
+              {lightboxPhotos.length > 1 && (
+                <small>
+                  {lightboxIndex + 1} / {lightboxPhotos.length}
+                </small>
+              )}
+            </figcaption>
+          </figure>
+
+          {lightboxPhotos.length > 1 && (
+            <button
+              type="button"
+              className="mx-lightbox-nav next"
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxIndex((lightboxIndex + 1) % lightboxPhotos.length);
+              }}
+              aria-label="Photo suivante"
+              title="Photo suivante (→)"
+            >
+              ›
+            </button>
+          )}
+        </div>
+      )}
     </main>
   );
 }
